@@ -194,10 +194,13 @@
                     window.location.href = 'pamer_bakat.html';
                 } else if (command === '>as_database --open') {
                     window.location.href = 'as_database.html';
+                    window.location.href = 'pamer_bakat.html';
+                } else if (command === '>enkripsi_kata --open') {
+                    window.location.href = 'enkripsi_kata.html';
                 } else if (command === '>info') {
                     // Tampilkan daftar perintah yang bisa dimasukkan
                     infoMsg.style.display = 'block';
-                    infoMsg.innerText = " >enkripsi_gambar --open, >pamer_bakat --open, >as_database --open, >info";
+                    infoMsg.innerText = " >enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >info";
                 } else {
                     errorMsg.style.display = 'block';
                 }
