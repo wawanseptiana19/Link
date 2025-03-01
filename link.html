@@ -17,6 +17,51 @@
             padding: 0;
         }
 
+        /* Modal Password */
+        #passwordModal {
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #passwordModal input {
+            padding: 0.5rem;
+            border: 1px solid #39FF14;
+            border-radius: 0.375rem;
+            background-color: #000;
+            color: #39FF14;
+            margin-bottom: 1rem;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        #passwordModal button {
+            padding: 0.5rem 1rem;
+            background-color: #111;
+            border: 1px solid #39FF14;
+            border-radius: 0.375rem;
+            color: #39FF14;
+            cursor: pointer;
+        }
+
+        #passwordModal p {
+            color: #FF0000;
+            margin-top: 1rem;
+        }
+
+        /* Sembunyikan konten utama hingga password benar */
+        #mainContent {
+            display: none;
+        }
+
         /* Tab Bar Styling */
         .tab-bar {
             display: flex;
@@ -201,7 +246,6 @@
             background-color: rgba(0, 0, 0, 0.8);
         }
 
-        /* Nama orang: huruf besar dan tidak miring */
         .person-name {
             font-size: 0.9rem;
             text-transform: uppercase;
@@ -210,7 +254,6 @@
             margin-bottom: 0.3rem;
         }
 
-        /* Nama file (link) diformat seperti kode pergeseran */
         .link-title {
             font-size: 1.2rem;
             font-weight: bold;
@@ -225,7 +268,6 @@
             margin: 0.2rem 0;
         }
 
-        /* Mencegah URL melampaui batas kotak list */
         .link-url {
             display: inline-block;
             max-width: 70%;
@@ -244,7 +286,6 @@
             text-decoration: underline;
         }
 
-        /* Tombol copy, dekripsi, download, dan hapus */
         .btn-copy,
         .btn-decrypt,
         .btn-download,
@@ -266,12 +307,10 @@
             background-color: #222;
         }
 
-        /* Container untuk tampilan gambar hasil dekripsi */
         .decrypted-container {
             margin-top: 0.5rem;
         }
 
-        /* Progress Bar Loading */
         .progress-bar {
             width: 100%;
             background-color: #222;
@@ -292,13 +331,14 @@
             from {
                 width: 0%;
             }
+
             to {
                 width: 100%;
             }
         }
 
-        /* Media Query untuk tampilan mobile */
         @media screen and (max-width: 600px) {
+
             .card,
             .modal-content,
             #linksContainer,
@@ -306,10 +346,12 @@
                 max-width: 90%;
                 margin: 1rem auto;
             }
+
             .tab-bar {
                 flex-direction: column;
                 align-items: center;
             }
+
             .tab {
                 margin: 0.5rem 0;
             }
@@ -318,306 +360,338 @@
 </head>
 
 <body>
-    <!-- Tab Bar -->
-    <div class="tab-bar">
-        <a href="index.html" class="tab">Enkripsi Gambar</a>
-        <a href="link.html" class="tab active-tab">Link</a>
+    <!-- Modal Password -->
+    <div id="passwordModal">
+        <h1>Masukkan Password</h1>
+        <input type="password" id="passwordInput" placeholder="Password">
+        <button id="btnSubmitPassword"><i class="fas fa-lock"></i> Masuk</button>
+        <p id="passwordError" class="hidden">Password salah. Silakan coba lagi.</p>
     </div>
 
-    <!-- Form pencarian -->
-    <form id="searchForm" class="search-form">
-        <input type="text" id="searchInput" class="search-input"
-            placeholder="Cari link berdasarkan nama orang atau nama link...">
-        <button type="submit" class="btn-search"><i class="fas fa-search"></i> Cari</button>
-    </form>
-
-    <!-- Container tampilan link -->
-    <div id="linksContainer"></div>
-
-    <!-- Tombol tambah (+) di kanan bawah -->
-    <button id="btnShowForm"><i class="fas fa-plus"></i></button>
-
-    <!-- Modal Popup Form Tambah Link -->
-    <div id="modalForm" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h1 class="text-3xl font-bold mb-6">Tambah Link</h1>
-            <form id="linkForm">
-                <div class="form-group">
-                    <label for="personName" class="form-label">Nama Orang</label>
-                    <input type="text" id="personName" class="form-input" placeholder="Masukkan nama orang" required>
-                </div>
-                <div class="form-group">
-                    <label for="linkName" class="form-label">Nama Link</label>
-                    <input type="text" id="linkName" class="form-input" placeholder="Masukkan nama link" required>
-                </div>
-                <div class="form-group">
-                    <label for="linkUrl" class="form-label">URL Link</label>
-                    <input type="url" id="linkUrl" class="form-input" placeholder="https://www.example.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="shiftCode" class="form-label">Kode Pergeseran</label>
-                    <input type="text" id="shiftCode" class="form-input" placeholder="Masukkan kode pergeseran">
-                </div>
-                <button type="submit" class="btn-action"><i class="fas fa-save"></i> Simpan Link</button>
-            </form>
-            <!-- Notifikasi -->
-            <div id="notification" class="mt-4 hidden p-4 border border-green-500 rounded bg-black"></div>
+    <!-- Konten Utama -->
+    <div id="mainContent">
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+            <a href="index.html" class="tab">Enkripsi Gambar</a>
+            <a href="link.html" class="tab active-tab">Link</a>
         </div>
-    </div>
 
-    <!-- Supabase JS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // Fungsi caesarDecipher sesuai dengan kode sebelumnya
-        function caesarDecipher(str, shift) {
-            return str.replace(/[a-zA-Z]/g, function (c) {
-                const base = c <= 'Z' ? 65 : 97;
-                return String.fromCharCode((c.charCodeAt(0) - base - shift + 26) % 26 + base);
-            });
-        }
+        <!-- Form pencarian -->
+        <form id="searchForm" class="search-form">
+            <input type="text" id="searchInput" class="search-input"
+                placeholder="Cari link berdasarkan nama orang atau nama link...">
+            <button type="submit" class="btn-search"><i class="fas fa-search"></i> Cari</button>
+        </form>
 
-        // Konfigurasi Supabase – sesuaikan dengan kredensial Anda
-        const SUPABASE_URL = 'https://qzdvdfebkzlwkhvxwsju.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6ZHZkZmVia3psd2todnh3c2p1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMTA4OTksImV4cCI6MjA1Mjc4Njg5OX0.Z9XKmX49vu0kZwn6YMom8QeLNNdKQMXCIkxcIoHKQFs';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        <!-- Container tampilan link -->
+        <div id="linksContainer"></div>
 
-        // Elemen DOM
-        const btnShowForm = document.getElementById('btnShowForm');
-        const modalForm = document.getElementById('modalForm');
-        const closeModal = document.querySelector('.close');
-        const linkForm = document.getElementById('linkForm');
-        const notification = document.getElementById('notification');
-        const linksContainer = document.getElementById('linksContainer');
-        const searchForm = document.getElementById('searchForm');
-        const searchInput = document.getElementById('searchInput');
+        <!-- Tombol tambah (+) di kanan bawah -->
+        <button id="btnShowForm"><i class="fas fa-plus"></i></button>
 
-        // Notifikasi
-        function showNotification(message, isError = false) {
-            notification.textContent = message;
-            notification.style.borderColor = isError ? '#FF0000' : '#39FF14';
-            notification.classList.remove('hidden');
-            setTimeout(() => {
-                notification.classList.add('hidden');
-            }, 3000);
-        }
-
-        // Fungsi copy ke clipboard
-        async function copyToClipboard(text) {
-            try {
-                await navigator.clipboard.writeText(text);
-                showNotification('URL berhasil disalin.');
-            } catch (err) {
-                console.error('Gagal menyalin: ', err);
-                showNotification('Gagal menyalin URL.', true);
-            }
-        }
-
-        // Memuat data link dari Supabase
-        async function loadLinks(searchQuery = '') {
-            linksContainer.innerHTML = '';
-            let query = supabaseClient.from('links').select('*').order('created_at', { ascending: false });
-            if (searchQuery.trim() !== '') {
-                query = query.or(`person_name.ilike.%${searchQuery}%,name.ilike.%${searchQuery}%`);
-            }
-            const { data, error } = await query;
-            if (error) {
-                console.error(error);
-                showNotification('Terjadi kesalahan saat memuat link.', true);
-                return;
-            }
-            if (!data || data.length === 0) {
-                linksContainer.innerHTML = '<p>Tidak ada link yang tersimpan.</p>';
-                return;
-            }
-            data.forEach(link => {
-                // Setiap link akan memiliki tombol copy, tombol dekripsi, tombol hapus, dan container untuk hasil dekripsi
-                const linkItem = document.createElement('div');
-                linkItem.className = 'link-item';
-                linkItem.innerHTML = `
-          <p class="person-name">${link.person_name || 'TIDAK DIKETAHUI'}</p>
-          <p class="link-title">${link.name}</p>
-          <p class="link-details">
-            <strong>URL:</strong> 
-            <a href="${link.url}" target="_blank" class="link-url">${link.url}</a>
-            <button class="btn-copy" data-url="${link.url}"><i class="fas fa-copy"></i> Copy</button>
-          </p>
-          <p class="link-details">
-            <strong>Kode Pergeseran:</strong> ${link.shift_code || '-'}
-          </p>
-          <button class="btn-decrypt" data-url="${link.url}" data-shift="${link.shift_code || 0}">
-            <i class="fas fa-lock-open"></i> Dekripsi
-          </button>
-          <button class="btn-delete" data-id="${link.id}">
-            <i class="fas fa-trash"></i> Hapus
-          </button>
-          <div class="decrypted-container hidden"></div>
-        `;
-                linksContainer.appendChild(linkItem);
-            });
-
-            // Event listener untuk tombol copy
-            document.querySelectorAll('.btn-copy').forEach(button => {
-                button.addEventListener('click', () => {
-                    const url = button.getAttribute('data-url');
-                    copyToClipboard(url);
-                });
-            });
-
-            // Event listener untuk tombol dekripsi
-            document.querySelectorAll('.btn-decrypt').forEach(button => {
-                button.addEventListener('click', async () => {
-                    const url = button.getAttribute('data-url');
-                    const shift = parseInt(button.getAttribute('data-shift')) || 0;
-                    const decryptedContainer = button.parentElement.querySelector('.decrypted-container');
-
-                    // Tampilkan progress bar loading horizontal dengan tulisan "mengdekripsi"
-                    decryptedContainer.innerHTML = `
-            <div class="loading-container" style="display: flex; flex-direction: column; align-items: flex-start;">
-              <p style="margin: 0; color: #39FF14; font-weight: bold;">mengdekripsi</p>
-              <div class="progress-bar">
-                <div class="progress-bar-fill"></div>
-              </div>
+        <!-- Modal Popup Form Tambah Link -->
+        <div id="modalForm" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h1 class="text-3xl font-bold mb-6">Tambah Link</h1>
+                <form id="linkForm">
+                    <div class="form-group">
+                        <label for="personName" class="form-label">Nama Orang</label>
+                        <input type="text" id="personName" class="form-input" placeholder="Masukkan nama orang"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="linkName" class="form-label">Nama Link</label>
+                        <input type="text" id="linkName" class="form-input" placeholder="Masukkan nama link" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="linkUrl" class="form-label">URL Link</label>
+                        <input type="url" id="linkUrl" class="form-input" placeholder="https://www.example.com"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="shiftCode" class="form-label">Kode Pergeseran</label>
+                        <input type="text" id="shiftCode" class="form-input" placeholder="Masukkan kode pergeseran">
+                    </div>
+                    <button type="submit" class="btn-action"><i class="fas fa-save"></i> Simpan Link</button>
+                </form>
+                <!-- Notifikasi -->
+                <div id="notification" class="mt-4 hidden p-4 border border-green-500 rounded bg-black"></div>
             </div>
+        </div>
+
+        <!-- Supabase JS CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script>
+            // Password yang benar (ganti dengan password yang diinginkan)
+            const correctPassword = "dakota775";
+
+            // Elemen modal password
+            const passwordModal = document.getElementById('passwordModal');
+            const passwordInput = document.getElementById('passwordInput');
+            const btnSubmitPassword = document.getElementById('btnSubmitPassword');
+            const passwordError = document.getElementById('passwordError');
+            const mainContent = document.getElementById('mainContent');
+
+            btnSubmitPassword.addEventListener('click', () => {
+                const enteredPassword = passwordInput.value;
+                if (enteredPassword === correctPassword) {
+                    // Jika password benar, sembunyikan modal dan tampilkan konten utama
+                    passwordModal.style.display = 'none';
+                    mainContent.style.display = 'block';
+                } else {
+                    // Jika salah, tampilkan pesan error
+                    passwordError.classList.remove('hidden');
+                }
+            });
+
+            // Opsional: aktifkan enter key pada input password
+            passwordInput.addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') {
+                    btnSubmitPassword.click();
+                }
+            });
+
+            // Fungsi caesarDecipher sesuai dengan kode sebelumnya
+            function caesarDecipher(str, shift) {
+                return str.replace(/[a-zA-Z]/g, function (c) {
+                    const base = c <= 'Z' ? 65 : 97;
+                    return String.fromCharCode((c.charCodeAt(0) - base - shift + 26) % 26 + base);
+                });
+            }
+
+            // Konfigurasi Supabase – sesuaikan dengan kredensial Anda
+            const SUPABASE_URL = 'https://qzdvdfebkzlwkhvxwsju.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6ZHZkZmVia3psd2todnh3c2p1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMTA4OTksImV4cCI6MjA1Mjc4Njg5OX0.Z9XKmX49vu0kZwn6YMom8QeLNNdKQMXCIkxcIoHKQFs';
+            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            // Elemen DOM
+            const btnShowForm = document.getElementById('btnShowForm');
+            const modalForm = document.getElementById('modalForm');
+            const closeModal = document.querySelector('.close');
+            const linkForm = document.getElementById('linkForm');
+            const notification = document.getElementById('notification');
+            const linksContainer = document.getElementById('linksContainer');
+            const searchForm = document.getElementById('searchForm');
+            const searchInput = document.getElementById('searchInput');
+
+            // Notifikasi
+            function showNotification(message, isError = false) {
+                notification.textContent = message;
+                notification.style.borderColor = isError ? '#FF0000' : '#39FF14';
+                notification.classList.remove('hidden');
+                setTimeout(() => {
+                    notification.classList.add('hidden');
+                }, 3000);
+            }
+
+            // Fungsi copy ke clipboard
+            async function copyToClipboard(text) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    showNotification('URL berhasil disalin.');
+                } catch (err) {
+                    console.error('Gagal menyalin: ', err);
+                    showNotification('Gagal menyalin URL.', true);
+                }
+            }
+
+            // Memuat data link dari Supabase
+            async function loadLinks(searchQuery = '') {
+                linksContainer.innerHTML = '';
+                let query = supabaseClient.from('links').select('*').order('created_at', { ascending: false });
+                if (searchQuery.trim() !== '') {
+                    query = query.or(`person_name.ilike.%${searchQuery}%,name.ilike.%${searchQuery}%`);
+                }
+                const { data, error } = await query;
+                if (error) {
+                    console.error(error);
+                    showNotification('Terjadi kesalahan saat memuat link.', true);
+                    return;
+                }
+                if (!data || data.length === 0) {
+                    linksContainer.innerHTML = '<p>Tidak ada link yang tersimpan.</p>';
+                    return;
+                }
+                data.forEach(link => {
+                    const linkItem = document.createElement('div');
+                    linkItem.className = 'link-item';
+                    linkItem.innerHTML = `
+            <p class="person-name">${link.person_name || 'TIDAK DIKETAHUI'}</p>
+            <p class="link-title">${link.name}</p>
+            <p class="link-details">
+              <strong>URL:</strong> 
+              <a href="${link.url}" target="_blank" class="link-url">${link.url}</a>
+              <button class="btn-copy" data-url="${link.url}"><i class="fas fa-copy"></i> Copy</button>
+            </p>
+            <p class="link-details">
+              <strong>Kode Pergeseran:</strong> ${link.shift_code || '-'}
+            </p>
+            <button class="btn-decrypt" data-url="${link.url}" data-shift="${link.shift_code || 0}">
+              <i class="fas fa-lock-open"></i> Dekripsi
+            </button>
+            <button class="btn-delete" data-id="${link.id}">
+              <i class="fas fa-trash"></i> Hapus
+            </button>
+            <div class="decrypted-container hidden"></div>
           `;
-                    decryptedContainer.classList.remove('hidden');
+                    linksContainer.appendChild(linkItem);
+                });
 
-                    try {
-                        const response = await fetch(url);
-                        if (!response.ok) {
-                            throw new Error('Gagal mengambil file untuk dekripsi.');
-                        }
-                        // Pastikan loading berlangsung minimal 2 detik
-                        await new Promise(resolve => setTimeout(resolve, 2000));
+                // Event listener untuk tombol copy
+                document.querySelectorAll('.btn-copy').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const url = button.getAttribute('data-url');
+                        copyToClipboard(url);
+                    });
+                });
 
-                        // Ambil ukuran file dari header jika tersedia
-                        const contentLength = response.headers.get('Content-Length');
-                        let textContent = await response.text();
-                        if (shift !== 0) {
-                            textContent = caesarDecipher(textContent, shift);
-                        }
-                        // Membuat elemen gambar dengan source hasil dekripsi
-                        const img = document.createElement('img');
-                        img.src = textContent;
-                        img.alt = 'Gambar hasil dekripsi';
-                        img.className = 'max-w-full h-auto mt-2';
+                // Event listener untuk tombol dekripsi
+                document.querySelectorAll('.btn-decrypt').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const url = button.getAttribute('data-url');
+                        const shift = parseInt(button.getAttribute('data-shift')) || 0;
+                        const decryptedContainer = button.parentElement.querySelector('.decrypted-container');
 
-                        // Tombol download untuk gambar hasil dekripsi
-                        const downloadBtn = document.createElement('button');
-                        downloadBtn.className = 'btn-download';
-                        downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download Gambar';
-                        downloadBtn.addEventListener('click', () => {
-                            const a = document.createElement('a');
-                            a.href = textContent;
-                            a.download = 'decrypted_image.png';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                        });
+                        decryptedContainer.innerHTML = `
+              <div class="loading-container" style="display: flex; flex-direction: column; align-items: flex-start;">
+                <p style="margin: 0; color: #39FF14; font-weight: bold;">mengdekripsi</p>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill"></div>
+                </div>
+              </div>
+            `;
+                        decryptedContainer.classList.remove('hidden');
 
-                        // Tampilkan gambar dan tombol download pada container dekripsi
-                        decryptedContainer.innerHTML = '';
-                        decryptedContainer.appendChild(img);
-                        decryptedContainer.appendChild(downloadBtn);
-
-                        // Setelah gambar selesai dimuat, tampilkan informasi ukuran file dan dimensi gambar
-                        img.addEventListener('load', () => {
-                            const width = img.naturalWidth;
-                            const height = img.naturalHeight;
-                            const infoDiv = document.createElement('div');
-                            infoDiv.style.marginTop = '0.5rem';
-                            let sizeText = '-';
-                            if (contentLength) {
-                                // Konversi ukuran file dari byte ke KB
-                                sizeText = `${(parseInt(contentLength) / 1024).toFixed(2)} KB`;
+                        try {
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                throw new Error('Gagal mengambil file untuk dekripsi.');
                             }
-                            infoDiv.innerHTML = `<p style="font-size: 0.9rem; color: #39FF14;">Ukuran file: ${sizeText} | Dimensi: ${width} x ${height}</p>`;
-                            decryptedContainer.appendChild(infoDiv);
-                        });
-                    } catch (error) {
-                        decryptedContainer.innerHTML = '';
-                        showNotification(error.message, true);
-                    }
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            const contentLength = response.headers.get('Content-Length');
+                            let textContent = await response.text();
+                            if (shift !== 0) {
+                                textContent = caesarDecipher(textContent, shift);
+                            }
+                            const img = document.createElement('img');
+                            img.src = textContent;
+                            img.alt = 'Gambar hasil dekripsi';
+                            img.className = 'max-w-full h-auto mt-2';
+
+                            const downloadBtn = document.createElement('button');
+                            downloadBtn.className = 'btn-download';
+                            downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download Gambar';
+                            downloadBtn.addEventListener('click', () => {
+                                const a = document.createElement('a');
+                                a.href = textContent;
+                                a.download = 'decrypted_image.png';
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                            });
+
+                            decryptedContainer.innerHTML = '';
+                            decryptedContainer.appendChild(img);
+                            decryptedContainer.appendChild(downloadBtn);
+
+                            img.addEventListener('load', () => {
+                                const width = img.naturalWidth;
+                                const height = img.naturalHeight;
+                                const infoDiv = document.createElement('div');
+                                infoDiv.style.marginTop = '0.5rem';
+                                let sizeText = '-';
+                                if (contentLength) {
+                                    sizeText = `${(parseInt(contentLength) / 1024).toFixed(2)} KB`;
+                                }
+                                infoDiv.innerHTML = `<p style="font-size: 0.9rem; color: #39FF14;">Ukuran file: ${sizeText} | Dimensi: ${width} x ${height}</p>`;
+                                decryptedContainer.appendChild(infoDiv);
+                            });
+                        } catch (error) {
+                            decryptedContainer.innerHTML = '';
+                            showNotification(error.message, true);
+                        }
+                    });
                 });
+
+                // Event listener untuk tombol hapus
+                document.querySelectorAll('.btn-delete').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const id = button.getAttribute('data-id');
+                        if (!confirm('Apakah Anda yakin ingin menghapus link ini?')) return;
+                        const { error } = await supabaseClient
+                            .from('links')
+                            .delete()
+                            .eq('id', id);
+                        if (error) {
+                            console.error(error);
+                            showNotification('Gagal menghapus link.', true);
+                        } else {
+                            showNotification('Link berhasil dihapus.');
+                            loadLinks(searchInput.value);
+                        }
+                    });
+                });
+            }
+
+            // Tampilkan Modal Popup ketika tombol tambah (+) ditekan
+            btnShowForm.addEventListener('click', () => {
+                modalForm.style.display = 'block';
             });
 
-            // Event listener untuk tombol hapus
-            document.querySelectorAll('.btn-delete').forEach(button => {
-                button.addEventListener('click', async () => {
-                    const id = button.getAttribute('data-id');
-                    if (!confirm('Apakah Anda yakin ingin menghapus link ini?')) return;
-                    const { error } = await supabaseClient
-                        .from('links')
-                        .delete()
-                        .eq('id', id);
-                    if (error) {
-                        console.error(error);
-                        showNotification('Gagal menghapus link.', true);
-                    } else {
-                        showNotification('Link berhasil dihapus.');
-                        loadLinks(searchInput.value);
-                    }
-                });
+            // Tutup Modal ketika tombol close ditekan
+            closeModal.addEventListener('click', () => {
+                modalForm.style.display = 'none';
             });
-        }
 
-        // Tampilkan Modal Popup ketika tombol tambah (+) ditekan
-        btnShowForm.addEventListener('click', () => {
-            modalForm.style.display = 'block';
-        });
+            // Tutup Modal jika klik di luar konten modal
+            window.addEventListener('click', (event) => {
+                if (event.target == modalForm) {
+                    modalForm.style.display = 'none';
+                }
+            });
 
-        // Tutup Modal ketika tombol close ditekan
-        closeModal.addEventListener('click', () => {
-            modalForm.style.display = 'none';
-        });
+            // Kirim form tambah link
+            linkForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const personName = document.getElementById('personName').value;
+                const linkName = document.getElementById('linkName').value;
+                const linkUrl = document.getElementById('linkUrl').value;
+                const shiftCode = document.getElementById('shiftCode').value;
+                if (!personName || !linkName || !linkUrl) {
+                    showNotification('Nama orang, nama link, dan URL harus diisi.', true);
+                    return;
+                }
+                const { data, error } = await supabaseClient
+                    .from('links')
+                    .insert([{ person_name: personName, name: linkName, url: linkUrl, shift_code: shiftCode }]);
+                if (error) {
+                    console.error(error);
+                    showNotification('Terjadi kesalahan saat menyimpan link.', true);
+                } else {
+                    showNotification('Link berhasil disimpan.');
+                    linkForm.reset();
+                    modalForm.style.display = 'none';
+                    loadLinks(searchInput.value);
+                }
+            });
 
-        // Tutup Modal jika klik di luar konten modal
-        window.addEventListener('click', (event) => {
-            if (event.target == modalForm) {
-                modalForm.style.display = 'none';
-            }
-        });
+            // Pencarian link secara langsung (live search)
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value;
+                loadLinks(query);
+            });
 
-        // Kirim form tambah link
-        linkForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const personName = document.getElementById('personName').value;
-            const linkName = document.getElementById('linkName').value;
-            const linkUrl = document.getElementById('linkUrl').value;
-            const shiftCode = document.getElementById('shiftCode').value;
-            if (!personName || !linkName || !linkUrl) {
-                showNotification('Nama orang, nama link, dan URL harus diisi.', true);
-                return;
-            }
-            const { data, error } = await supabaseClient
-                .from('links')
-                .insert([{ person_name: personName, name: linkName, url: linkUrl, shift_code: shiftCode }]);
-            if (error) {
-                console.error(error);
-                showNotification('Terjadi kesalahan saat menyimpan link.', true);
-            } else {
-                showNotification('Link berhasil disimpan.');
-                linkForm.reset();
-                modalForm.style.display = 'none';
-                loadLinks(searchInput.value);
-            }
-        });
+            // Jika form pencarian dikirim (agar tombol "Cari" juga berfungsi)
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const query = searchInput.value;
+                loadLinks(query);
+            });
 
-        // Pencarian link secara langsung (live search)
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value;
-            loadLinks(query);
-        });
-
-        // Jika form pencarian dikirim (agar tombol "Cari" juga berfungsi)
-        searchForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const query = searchInput.value;
-            loadLinks(query);
-        });
-
-        window.addEventListener('DOMContentLoaded', () => loadLinks());
-    </script>
+            window.addEventListener('DOMContentLoaded', () => loadLinks());
+        </script>
+    </div>
 </body>
 
 </html>
