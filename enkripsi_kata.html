@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toolbox</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Courier+Prime&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #c0392b;
+            /* merah tua */
+            --primary-hover: #a93226;
+            --secondary: #f39c12;
+            /* oranye vintage */
+            --secondary-hover: #e67e22;
+            --background: #f5f0e6;
+            /* nuansa kertas kuno */
+            --surface: #fff8e1;
+            /* warna krem lembut */
+            --text: #2c3e50;
+            /* biru keabu-abuan gelap */
+            --muted: #7f8c8d;
+            --border: #d2b48c;
+        }
+
+        body {
+            background: var(--background);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            font-family: 'Courier Prime', monospace;
+            color: var(--text);
+        }
+
+        .cipher-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .cipher-title {
+            margin: 0 0 1.5rem 0;
+            font-size: 1.75rem;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--muted);
+        }
+
+        .cipher-select,
+        .cipher-input {
+            width: 95%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--surface);
+            font-size: 1rem;
+            transition: background 0.2s ease;
+            color: var(--text);
+        }
+
+        .cipher-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 1.25em;
+            appearance: none;
+        }
+
+        .cipher-input::placeholder {
+            color: var(--muted);
+            opacity: 0.8;
+        }
+
+        .cipher-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 5px var(--primary);
+        }
+
+        .method-description {
+            display: inline-block;
+            background-color: #ece0c8;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.5rem 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            flex: none;
+        }
+
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .download-btn {
+            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .download-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .download-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .download-group {
+            margin-top: 1rem;
+        }
+
+        .horizontal-group {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .file-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .file-upload-btn {
+            padding: 0.5rem;
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            background-color: #d2b48c;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .file-upload-btn:hover {
+            background-color: #c8a165;
+        }
+
+        @media (max-width: 640px) {
+            .cipher-container {
+                padding: 1.5rem;
+                border-radius: 4px;
+            }
+
+            .cipher-title {
+                font-size: 1.5rem;
+            }
+
+            .horizontal-group {
+                flex-direction: column;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cipher-container">
+        <h2 class="cipher-title">Toolbox</h2>
+
+        <div class="input-group">
+            <select class="cipher-select" id="cipher-method">
+                <option value="xor">XOR Cipher</option>
+                <option value="reverse">Reverse Alphabet</option>
+                <option value="caesar">Caesar Cipher</option>
+                <option value="hex">Hex Encoding</option>
+                <option value="vigenere">Vigenère Cipher</option>
+                <option value="octal">Octal Encoding</option>
+            </select>
+            <div class="method-description" id="method-desc"></div>
+        </div>
+
+        <div class="input-group horizontal-group">
+            <div class="text-input-container" style="flex: 1;">
+                <label class="input-label">Input Text</label>
+                <textarea class="cipher-input" id="cipher-text" rows="3"
+                    placeholder="Enter your text here..."></textarea>
+            </div>
+            <div class="file-upload-container">
+                <label class="input-label">Upload TXT</label>
+                <div class="file-input-wrapper">
+                    <button class="cipher-btn file-upload-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                    </button>
+                    <input type="file" class="file-input" id="file-input" accept=".txt">
+                </div>
+            </div>
+        </div>
+
+        <div class="input-group" id="key-container">
+            <label class="input-label">Encryption Key</label>
+            <input class="cipher-input" id="cipher-key" type="text" placeholder="Enter your key...">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Mode</label>
+            <select class="cipher-select" id="cipher-mode">
+                <option value="encrypt">Encrypt/Encode</option>
+                <option value="decrypt">Decrypt/Decode</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Result</label>
+            <textarea class="cipher-input" id="cipher-result" rows="3" placeholder="Your result will appear here..."
+                readonly></textarea>
+        </div>
+
+        <div class="download-group">
+            <button class="download-btn" id="download-btn" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--background)">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Download Result
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const methodDescriptions = {
+            xor: "XOR Cipher: Menggunakan operator bitwise XOR antara byte teks dan byte kunci. Metode sederhana, tapi tidak cocok untuk keamanan tinggi.",
+            reverse: "Reverse Alphabet: Membalikkan urutan huruf dalam alfabet. Hanya memproses huruf, tidak karakter lainnya.",
+            caesar: "Caesar Cipher: Menggeser huruf-huruf berdasarkan nilai kunci. Misalnya, dengan geseran 3, 'A' menjadi 'D'.",
+            hex: "Hex Encoding: Mengkonversi karakter menjadi representasi hexadecimal. Dekripsi dengan mengembalikannya ke bentuk aslinya.",
+            vigenere: "Vigenère Cipher: Enkripsi substitusi dengan kunci berulang yang menciptakan pola kompleks.",
+            octal: "Octal Encoding: Mengubah teks menjadi representasi oktal. Mirip dengan hex encoding, lebih ke konversi data."
+        };
+
+        function processCipher(isEncrypt) {
+            const method = document.getElementById('cipher-method').value;
+            const text = document.getElementById('cipher-text').value;
+            const key = document.getElementById('cipher-key').value;
+            const result = document.getElementById('cipher-result');
+
+            if (!text) {
+                result.value = "";
+                return;
+            }
+
+            if ((method === 'xor' || method === 'caesar' || method === 'vigenere') && !key) {
+                result.value = "";
+                return;
+            }
+
+            try {
+                let output;
+                switch (method) {
+                    case 'xor':
+                        output = xorCipher(text, key, isEncrypt);
+                        break;
+                    case 'reverse':
+                        output = reverseAlphabet(text);
+                        break;
+                    case 'caesar':
+                        const shift = parseInt(key) || 3;
+                        output = caesarCipher(text, shift, isEncrypt);
+                        break;
+                    case 'hex':
+                        output = isEncrypt ? textToHex(text) : hexToText(text);
+                        break;
+                    case 'vigenere':
+                        output = vigenereCipher(text, key, isEncrypt);
+                        break;
+                    case 'octal':
+                        output = isEncrypt ? textToOctal(text) : octalToText(text);
+                        break;
+                    default:
+                        output = "";
+                }
+
+                result.value = output;
+                result.classList.remove('fade-in');
+                void result.offsetWidth;
+                result.classList.add('fade-in');
+
+                document.getElementById('download-btn').disabled = false;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function updateCipher() {
+            const mode = document.getElementById('cipher-mode').value;
+            const isEncrypt = mode === 'encrypt';
+            processCipher(isEncrypt);
+        }
+
+        document.getElementById('cipher-text').addEventListener('input', updateCipher);
+        document.getElementById('cipher-key').addEventListener('input', updateCipher);
+        document.getElementById('cipher-mode').addEventListener('change', updateCipher);
+        document.getElementById('cipher-method').addEventListener('change', function () {
+            const method = this.value;
+            const keyContainer = document.getElementById('key-container');
+            const keyInput = document.getElementById('cipher-key');
+            const desc = document.getElementById('method-desc');
+
+            desc.textContent = methodDescriptions[method];
+
+            if (method === 'reverse' || method === 'hex' || method === 'octal') {
+                keyContainer.style.display = 'none';
+            } else {
+                keyContainer.style.display = 'block';
+                keyInput.placeholder =
+                    method === 'caesar' ? 'Jumlah geser (default: 3)' : 'Kunci enkripsi';
+            }
+            updateCipher();
+        });
+
+        document.getElementById('file-input').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file && file.type === "text/plain") {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('cipher-text').value = e.target.result;
+                    updateCipher();
+                };
+                reader.readAsText(file);
+            } else {
+                console.error('Hanya file TXT yang didukung');
+            }
+        });
+
+        document.getElementById('download-btn').addEventListener('click', function () {
+            const result = document.getElementById('cipher-result').value;
+            if (result) {
+                const blob = new Blob([result], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `cipher_result_${new Date().getTime()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }
+        });
+
+        document.getElementById('cipher-result').addEventListener('input', function () {
+            document.getElementById('download-btn').disabled = !this.value;
+        });
+
+        function xorCipher(input, key, encrypt) {
+            const encoder = new TextEncoder();
+            const decoder = new TextDecoder();
+            const keyBytes = encoder.encode(key);
+
+            if (encrypt) {
+                const inputBytes = encoder.encode(input);
+                const output = new Uint8Array(inputBytes.length);
+                for (let i = 0; i < inputBytes.length; i++) {
+                    output[i] = inputBytes[i] ^ keyBytes[i % keyBytes.length];
+                }
+                return Array.from(output)
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('');
+            } else {
+                const hexPairs = input.match(/[\da-f]{2}/gi) || [];
+                const bytes = new Uint8Array(hexPairs.map(h => parseInt(h, 16)));
+                const output = new Uint8Array(bytes.length);
+                for (let i = 0; i < bytes.length; i++) {
+                    output[i] = bytes[i] ^ keyBytes[i % keyBytes.length];
+                }
+                return decoder.decode(output);
+            }
+        }
+
+        function reverseAlphabet(text) {
+            return text
+                .split('')
+                .map(c => {
+                    const code = c.charCodeAt(0);
+                    if (code >= 65 && code <= 90) {
+                        return String.fromCharCode(155 - code);
+                    }
+                    if (code >= 97 && code <= 122) {
+                        return String.fromCharCode(219 - code);
+                    }
+                    return c;
+                })
+                .join('');
+        }
+
+        function caesarCipher(text, shift, encrypt) {
+            if (!encrypt) shift = -shift;
+            return text
+                .split('')
+                .map(c => {
+                    let code = c.charCodeAt(0);
+                    if (code >= 65 && code <= 90) {
+                        code = ((code - 65 + shift) % 26 + 26) % 26 + 65;
+                    } else if (code >= 97 && code <= 122) {
+                        code = ((code - 97 + shift) % 26 + 26) % 26 + 97;
+                    }
+                    return String.fromCharCode(code);
+                })
+                .join('');
+        }
+
+        function textToHex(text) {
+            return Array.from(new TextEncoder().encode(text))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+
+        function hexToText(hex) {
+            const bytes = new Uint8Array(hex.match(/[\da-f]{2}/gi).map(h => parseInt(h, 16)));
+            return new TextDecoder().decode(bytes);
+        }
+
+        function vigenereCipher(text, key, encrypt) {
+            let result = "";
+            let j = 0;
+            for (let i = 0; i < text.length; i++) {
+                const c = text[i];
+                if (c.match(/[a-zA-Z]/)) {
+                    const isUpperCase = c === c.toUpperCase();
+                    const base = isUpperCase ? 65 : 97;
+                    const textCharCode = c.charCodeAt(0) - base;
+                    const keyChar = key[j % key.length];
+                    const keyShift = keyChar.toLowerCase().charCodeAt(0) - 97;
+                    let newCode;
+                    if (encrypt) {
+                        newCode = (textCharCode + keyShift) % 26;
+                    } else {
+                        newCode = (textCharCode - keyShift + 26) % 26;
+                    }
+                    result += String.fromCharCode(newCode + base);
+                    j++;
+                } else {
+                    result += c;
+                }
+            }
+            return result;
+        }
+
+        function textToOctal(text) {
+            return Array.from(new TextEncoder().encode(text))
+                .map(b => b.toString(8).padStart(3, '0'))
+                .join('');
+        }
+
+        function octalToText(octal) {
+            const matches = octal.match(/[0-7]{3}/g);
+            if (!matches) return "";
+            const bytes = new Uint8Array(matches.map(o => parseInt(o, 8)));
+            return new TextDecoder().decode(bytes);
+        }
+
+        document.getElementById('method-desc').textContent = methodDescriptions.xor;
+    </script>
+</body>
+
+</html>
