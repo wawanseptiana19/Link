@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Console Command - Tema Hacker & Retro Pixel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+            background-color: #000;
+            color: #39FF14;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Container seperti kotak input */
+        .input-container {
+            position: relative;
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #39FF14;
+            border-radius: 0.375rem;
+            background-color: #111;
+            overflow: hidden;
+        }
+
+        /* Elemen teks yang dapat diedit */
+        .command-text {
+            outline: none;
+            font-size: 1rem;
+            color: #39FF14;
+            caret-color: transparent;
+            /* sembunyikan kursor bawaan */
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Kursor kustom: tebal dan diletakkan di belakang teks */
+        .custom-caret {
+            position: absolute;
+            bottom: 5px;
+            /* atur agar berada tepat di bawah teks */
+            width: 10px;
+            /* lebar kursor, bisa disesuaikan */
+            height: 4px;
+            /* kursor menjadi lebih tebal */
+            background-color: #39FF14;
+            animation: blink 1s step-start infinite;
+            z-index: 1;
+            /* ditempatkan di belakang teks */
+            pointer-events: none;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .btn-run {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #111;
+            color: #39FF14;
+            border: 1px solid #39FF14;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-run:hover {
+            background-color: #222;
+        }
+
+        .error-message {
+            color: #FF0000;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .info-message {
+            color: #39FF14;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        /* Elemen mirror untuk mengukur lebar teks secara akurat */
+        .mirror {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            visibility: hidden;
+            white-space: pre;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        /* Styling untuk pesan proses */
+        .processing-message {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Console Command</h1>
+        <div class="input-container">
+            <!-- Elemen contenteditable untuk input -->
+            <div id="commandInput" class="command-text" contenteditable="true" spellcheck="false"></div>
+            <!-- Kursor kustom -->
+            <span id="customCaret" class="custom-caret"></span>
+            <!-- Elemen mirror untuk mengukur lebar teks -->
+            <span id="mirror" class="mirror"></span>
+        </div>
+        <button id="btnRun" class="btn-run">Run</button>
+        <p id="processingMsg" class="processing-message"></p>
+        <p id="errorMsg" class="error-message">error!</p>
+        <!-- Elemen info message untuk menampilkan daftar perintah -->
+        <p id="infoMsg" class="info-message"></p>
+    </div>
+
+    <script>
+        const commandInput = document.getElementById('commandInput');
+        const customCaret = document.getElementById('customCaret');
+        const mirror = document.getElementById('mirror');
+        const btnRun = document.getElementById('btnRun');
+        const errorMsg = document.getElementById('errorMsg');
+        const processingMsg = document.getElementById('processingMsg');
+        const infoMsg = document.getElementById('infoMsg');
+        const inputContainer = document.querySelector('.input-container');
+
+        // Fungsi untuk mengupdate posisi kursor kustom menggunakan elemen mirror
+        function updateCaretPosition() {
+            mirror.textContent = commandInput.innerText || '';
+            const mirrorWidth = mirror.offsetWidth;
+            const containerStyle = window.getComputedStyle(inputContainer);
+            const paddingLeft = parseInt(containerStyle.paddingLeft);
+            customCaret.style.left = (paddingLeft + mirrorWidth) + 'px';
+        }
+
+        // Fungsi untuk menghasilkan string acak dengan panjang tertentu
+        function generateRandomString(length) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        }
+
+        // Fungsi untuk menjalankan perintah dengan delay 3 detik dan menampilkan proses acak
+        function runCommand() {
+            // Sembunyikan pesan error dan info jika ada
+            errorMsg.style.display = 'none';
+            infoMsg.style.display = 'none';
+
+            // Tampilkan pesan proses dengan string acak
+            processingMsg.style.display = 'block';
+            processingMsg.innerText = "Memproses: " + generateRandomString(24);
+
+            // Perbarui string acak setiap 300ms
+            const interval = setInterval(() => {
+                processingMsg.innerText = "Memproses: " + generateRandomString(24);
+            }, 300);
+
+            // Setelah 3 detik, hentikan interval dan jalankan perintah
+            setTimeout(() => {
+                clearInterval(interval);
+                processingMsg.style.display = 'none';
+
+                const command = (commandInput.innerText || '').trim();
+
+                if (command === '>enkripsi_gambar --open') {
+                    window.location.href = 'enkripsi.html';
+                } else if (command === '>pamer_bakat --open') {
+                    window.location.href = 'pamer_bakat.html';
+                } else if (command === '>as_database --open') {
+                    window.location.href = 'as_database.html';
+                } else if (command === '>info') {
+                    // Tampilkan daftar perintah yang bisa dimasukkan
+                    infoMsg.style.display = 'block';
+                    infoMsg.innerText = " >enkripsi_gambar --open, >pamer_bakat --open, >as_database --open, >info";
+                } else {
+                    errorMsg.style.display = 'block';
+                }
+            }, 3000);
+        }
+
+        btnRun.addEventListener('click', runCommand);
+
+        // Jalankan perintah saat menekan Enter
+        commandInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                runCommand();
+            }
+        });
+
+        // Update posisi kursor saat terjadi perubahan pada teks
+        commandInput.addEventListener('input', updateCaretPosition);
+        updateCaretPosition();
+    </script>
+</body>
+
+</html>

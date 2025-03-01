@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Supabase ke Excel (Realtime, Filter & Ceklis) - Hacker Retro</title>
+    <!-- Google Fonts: Press Start 2P untuk gaya retro -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Library SheetJS untuk ekspor ke Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Global Style dengan tema hacker retro dan font retro */
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background-color: #000;
+            color: #00ff00;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Judul tanpa efek glowing */
+        h1,
+        h2 {
+            /* text-shadow dihilangkan */
+        }
+
+        /* Elemen paragraf dan teks lainnya tidak menggunakan efek glowing */
+        p,
+        label,
+        input,
+        td,
+        th {
+            text-shadow: none;
+        }
+
+        /* Styling untuk halaman login */
+        #login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #000 0%, #111 100%);
+        }
+
+        #login-container input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+            width: 220px;
+            background-color: #222;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
+
+        /* Tombol dengan desain retro */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #00ff00;
+            color: #000;
+            border: 2px solid #00ff00;
+            border-radius: 0;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: #ccff00;
+            border-color: #ccff00;
+        }
+
+        /* Styling untuk konten utama, disembunyikan pada awalnya */
+        #main-content {
+            display: none;
+            padding: 20px;
+            background-color: #111;
+            min-height: 100vh;
+        }
+
+        /* Tombol logout dengan desain retro */
+        #logout-btn {
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #ff0000;
+            color: #fff;
+            border: 2px solid #ff0000;
+            border-radius: 0;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            text-transform: uppercase;
+        }
+
+        #logout-btn:hover {
+            background-color: #cc0000;
+            border-color: #cc0000;
+        }
+
+        /* Judul dan container filter */
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-container input[type="date"] {
+            padding: 8px;
+            background-color: #222;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        .filter-container button {
+            padding: 8px 16px;
+            background-color: #00ff00;
+            color: #000;
+            border: 2px solid #00ff00;
+            border-radius: 0;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            text-transform: uppercase;
+        }
+
+        .filter-container button:hover {
+            background-color: #ccff00;
+            border-color: #ccff00;
+        }
+
+        /* Tombol Export dengan gaya retro */
+        .export-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #00ff00;
+            color: #000;
+            border: 2px solid #00ff00;
+            border-radius: 0;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            text-transform: uppercase;
+        }
+
+        .export-btn:hover {
+            background-color: #ccff00;
+            border-color: #ccff00;
+        }
+
+        /* Styling tabel data */
+        table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #000;
+            color: #00ff00;
+        }
+
+        th,
+        td {
+            border: 1px solid #00ff00;
+            padding: 10px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+
+        th {
+            background-color: #111;
+        }
+
+        tr:nth-child(even) {
+            background-color: #0a0a0a;
+        }
+
+        .date-section {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Container Login -->
+    <div id="login-container">
+        <h1>LOGIN</h1>
+        <p>Masukkan password untuk melanjutkan:</p>
+        <input type="password" id="login-password" placeholder="Password">
+        <button onclick="checkPassword()">Masuk</button>
+    </div>
+
+    <!-- Container Main Content, disembunyikan awalnya -->
+    <div id="main-content">
+        <!-- Tombol Logout -->
+        <div style="text-align: right; margin-bottom: 20px;">
+            <button id="logout-btn" onclick="logout()">Logout</button>
+        </div>
+        <h1>DATABASE AS STEAM (REALTIME)</h1>
+        <div class="filter-container">
+            <label for="search-date">Cari Tanggal: </label>
+            <input type="date" id="search-date" />
+            <!-- Tombol untuk mereset filter -->
+            <button onclick="resetFilter()">Reset</button>
+        </div>
+        <div style="text-align: center;">
+            <!-- Tombol untuk mengekspor data ke Excel -->
+            <button class="export-btn" onclick="exportToExcel()">Export ke Excel</button>
+        </div>
+        <div id="data-container">Memuat data...</div>
+    </div>
+
+    <script>
+        // Fungsi untuk mengecek status login dari localStorage
+        function checkLoginStatus() {
+            if (localStorage.getItem("loggedIn") === "true") {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                fetchData();
+                subscribeRealtime();
+            }
+        }
+
+        // Fungsi untuk melakukan pengecekan password
+        function checkPassword() {
+            const passwordInput = document.getElementById('login-password').value;
+            if (passwordInput === '7290527') {
+                localStorage.setItem("loggedIn", "true");
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                fetchData();
+                subscribeRealtime();
+            } else {
+                alert('Password salah. Silahkan coba lagi.');
+            }
+        }
+
+        // Fungsi untuk melakukan logout
+        function logout() {
+            localStorage.removeItem("loggedIn");
+            document.getElementById('login-container').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+        }
+
+        // Global variable untuk menyimpan semua data yang diambil
+        let allEntries = [];
+
+        // Ganti dengan kredensial Supabase Anda
+        const SUPABASE_URL = 'https://rfkivmxezjerwwusfbji.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJma2l2bXhlemplcnd3dXNmYmppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTgwOTI0MjEsImV4cCI6MjAzMzY2ODQyMX0.sJw9DmLLtpmSgS_7j4YYAXn6ZidAqSAhEy2J6FSYTs0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Fungsi untuk menampilkan data (tabel per tanggal)
+        function displayData(entries) {
+            const container = document.getElementById('data-container');
+            container.innerHTML = '';
+
+            // Kelompokkan data berdasarkan tanggal (format ISO: YYYY-MM-DD)
+            const groupedData = {};
+            entries.forEach(entry => {
+                const rawDate = new Date(entry.created_at);
+                const groupKey = rawDate.toISOString().slice(0, 10);
+                if (!groupedData[groupKey]) {
+                    groupedData[groupKey] = [];
+                }
+                groupedData[groupKey].push(entry);
+            });
+
+            if (Object.keys(groupedData).length === 0) {
+                container.innerHTML = '<p style="text-align:center;">Tidak ada data untuk ditampilkan.</p>';
+                return;
+            }
+
+            // Tampilkan tabel per tanggal, yang terbaru di atas
+            Object.keys(groupedData)
+                .sort((a, b) => new Date(b) - new Date(a))
+                .forEach(dateKey => {
+                    const section = document.createElement('div');
+                    section.className = 'date-section';
+                    section.innerHTML = `<h2>${new Date(dateKey).toLocaleDateString('id-ID')}</h2>`;
+
+                    const table = document.createElement('table');
+                    table.innerHTML = `
+            <colgroup>
+              <col style="width: 25%;">
+              <col style="width: 25%;">
+              <col style="width: 25%;">
+              <col style="width: 25%;">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>Jenis Kendaraan</th>
+                <th>Harga Cuci</th>
+                <th>Ceklis</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${groupedData[dateKey].map(entry => `
+                <tr>
+                  <td>${entry.name}</td>
+                  <td>${entry.size}</td>
+                  <td>Rp. ${parseFloat(entry.price).toLocaleString('id-ID', { maximumFractionDigits: 0 })}</td>
+                  <td style="text-align: center;">
+                    <input type="checkbox" disabled ${entry.is_checked ? 'checked' : ''} />
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          `;
+                    section.appendChild(table);
+                    container.appendChild(section);
+                });
+        }
+
+        async function fetchData() {
+            const container = document.getElementById('data-container');
+            container.innerHTML = 'Memuat data...';
+
+            try {
+                let { data: vehicle_wash_entries, error } = await supabaseClient
+                    .from('vehicle_wash_entries')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!vehicle_wash_entries || vehicle_wash_entries.length === 0) {
+                    container.innerHTML = '<p style="text-align:center;">Tidak ada data untuk ditampilkan.</p>';
+                    return;
+                }
+
+                allEntries = vehicle_wash_entries;
+                filterByDate();
+            } catch (err) {
+                console.error("Terjadi kesalahan:", err);
+                container.innerHTML = '<p style="text-align:center;color:#ff0000;">Gagal memuat data.</p>';
+            }
+        }
+
+        function filterByDate() {
+            const searchDate = document.getElementById('search-date').value;
+            let filteredEntries = allEntries;
+
+            if (searchDate) {
+                filteredEntries = allEntries.filter(entry => {
+                    const entryDate = new Date(entry.created_at).toISOString().slice(0, 10);
+                    return entryDate === searchDate;
+                });
+            }
+            displayData(filteredEntries);
+        }
+
+        function resetFilter() {
+            document.getElementById('search-date').value = '';
+            displayData(allEntries);
+        }
+
+        function exportToExcel() {
+            if (allEntries.length === 0) {
+                alert("Tidak ada data untuk diekspor.");
+                return;
+            }
+            const dataForExcel = allEntries.map(entry => {
+                const rawDate = new Date(entry.created_at);
+                return {
+                    "Tanggal": rawDate.toLocaleDateString('id-ID'),
+                    "Nama": entry.name,
+                    "Jenis Kendaraan": entry.size,
+                    "Harga Cuci": "Rp. " + parseFloat(entry.price).toLocaleString('id-ID', { maximumFractionDigits: 0 }),
+                    "Ceklis": entry.is_checked ? "Ya" : "Tidak"
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Data Vehicle Wash");
+            XLSX.writeFile(workbook, "DataVehicleWash.xlsx");
+        }
+
+        function subscribeRealtime() {
+            supabaseClient
+                .channel('vehicle-wash-realtime')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'vehicle_wash_entries' }, payload => {
+                    console.log('Update realtime:', payload);
+                    fetchData();
+                })
+                .subscribe();
+        }
+
+        // Event listener untuk mendeteksi tombol Enter pada input password
+        document.getElementById('login-password').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        document.getElementById('search-date').addEventListener('change', filterByDate);
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+    </script>
+</body>
+
+</html>
