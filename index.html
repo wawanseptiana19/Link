@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enkripsi dan Dekripsi Gambar - Tema Hacker & Retro Pixel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+            background-color: #000;
+            color: #39FF14;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Tab Bar Styling */
+        .tab-bar {
+            display: flex;
+            background-color: #111;
+            border-bottom: 2px solid #39FF14;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .tab {
+            margin-right: 2rem;
+            font-weight: bold;
+            color: #39FF14;
+            text-decoration: none;
+        }
+
+        .tab:hover {
+            color: #32e10f;
+        }
+
+        .active-tab {
+            border-bottom: 4px solid #39FF14;
+        }
+
+        .card {
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 15px #39FF14;
+            margin-bottom: 1rem;
+        }
+
+        img {
+            image-rendering: pixelated;
+        }
+
+        .custom-file-input {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            color: #000;
+            background-color: #39FF14;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 0 10px #39FF14;
+        }
+
+        .custom-file-input:hover {
+            background-color: #32e10f;
+        }
+
+        .custom-file-input input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .btn-action {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background-color: #111;
+            color: #39FF14;
+            border: 1px solid #39FF14;
+            border-radius: 0.375rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-action:hover {
+            background-color: #222;
+        }
+
+        .progress-container {
+            background-color: #1a1a1a;
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #39FF14;
+            width: 50%;
+            animation: progress-indeterminate 1.5s infinite linear;
+            transform-origin: left;
+        }
+
+        @keyframes progress-indeterminate {
+            0% {
+                transform: translateX(-100%) scaleX(0.5);
+            }
+
+            100% {
+                transform: translateX(200%) scaleX(0.5);
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background-color: #111;
+            margin: 10% auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(57, 255, 20, 0.5);
+            color: #39FF14;
+        }
+
+        .close {
+            color: #39FF14;
+            float: right;
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #32e10f;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+        <a href="index.html" class="tab active-tab">Enkripsi Gambar</a>
+        <a href="link.html" class="tab">Link</a>
+    </div>
+
+    <div class="max-w-4xl mx-auto p-4">
+        <!-- Kartu Enkripsi -->
+        <div class="card">
+            <h1 class="text-3xl font-bold mb-6">Enkripsi Gambar</h1>
+            <label class="custom-file-input">
+                <i class="fas fa-upload mr-2"></i> Upload Gambar
+                <input id="fileInput" type="file" accept="image/*">
+            </label>
+            <div id="fileInfo" class="mt-4 hidden">
+                <p id="fileName" class="text-lg"></p>
+                <p id="fileSize" class="text-lg"></p>
+            </div>
+            <div id="loadingProgressUpload" class="hidden mt-4">
+                <p class="mb-2">Memproses Upload...</p>
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+            <h2 id="encryptionResultTitle" class="text-xl font-semibold mb-4 mt-6 hidden">Hasil Enkripsi:</h2>
+            <div id="output" class="p-4 border border-green-500 rounded bg-black max-h-64 overflow-y-auto hidden"></div>
+            <div class="mt-4 space-y-4">
+                <input id="filenameInput" type="text" class="p-2 border border-green-500 rounded w-full hidden"
+                    placeholder="Masukkan nama file (tanpa ekstensi)">
+                <select id="formatSelect"
+                    class="hidden p-2 border border-green-500 rounded bg-black text-green-500 w-full">
+                    <option value="apk">.apk (Android Package)</option>
+                    <option value="ais">.ais (Aplikasi Indonesian)</option>
+                    <option value="pdf">.pdf (PDF Document)</option>
+                    <option value="zip">.zip (ZIP Archive)</option>
+                    <option value="rar">.rar (RAR Archive)</option>
+                    <option value="exe">.exe (Windows Executable)</option>
+                </select>
+            </div>
+            <button id="lockBtn" class="btn-action hidden"><i class="fas fa-lock"></i> Kunci</button>
+            <button id="downloadBtn" class="btn-action hidden"><i class="fas fa-download"></i> Download Teks</button>
+            <button id="copyBtn" class="btn-action hidden"><i class="fas fa-copy"></i> Salin Teks</button>
+        </div>
+
+        <!-- Kartu Dekripsi -->
+        <div class="card">
+            <h1 class="text-3xl font-bold mb-6">Dekripsi Teks Menjadi Gambar</h1>
+            <div class="flex items-center space-x-4 mt-4">
+                <label for="shiftBackAmount" class="block mb-2">Jumlah Pergeseran:</label>
+                <input type="number" id="shiftBackAmount"
+                    class="p-2 border border-green-500 rounded w-20 bg-black text-green-500" min="-25" max="25"
+                    value="0">
+            </div>
+            <div class="flex items-center space-x-4 mt-4">
+                <label class="custom-file-input">
+                    <i class="fas fa-upload mr-2"></i> Upload File
+                    <input id="uploadTxtInput" type="file">
+                </label>
+                <button id="githubBtn" class="custom-file-input bg-green-500 hover:bg-green-600">
+                    <i class="fab fa-github mr-2"></i> Buka dari GitHub
+                </button>
+            </div>
+            <div id="githubInputContainer" class="mt-4 hidden">
+                <div class="flex space-x-2">
+                    <input id="githubUrlInput" type="text"
+                        class="p-2 border border-green-500 rounded w-full bg-black text-green-500"
+                        placeholder="Masukkan URL file teks dari GitHub">
+                </div>
+                <button id="fetchGithubBtn" class="btn-action bg-blue-500 text-white hover:bg-blue-600 w-full">Ambil
+                    dari GitHub</button>
+            </div>
+            <div id="txtFileInfo" class="mt-4 hidden">
+                <p id="txtFileSize" class="text-lg"></p>
+            </div>
+            <div id="imageOutput" class="mt-4"></div>
+            <div id="loadingProgressDecrypt" class="hidden mt-4">
+                <p class="mb-2">Memproses Dekripsi...</p>
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+            <input id="imageFilenameInput" type="text"
+                class="mt-4 p-2 border border-green-500 rounded w-full hidden bg-black text-green-500"
+                placeholder="Masukkan nama file gambar yang akan disimpan (Opsional)">
+            <button id="downloadImageBtn" class="btn-action hidden"><i class="fas fa-download"></i> Download
+                Gambar</button>
+        </div>
+    </div>
+
+    <!-- Modal Enkripsi -->
+    <div id="lockModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="text-2xl font-bold mb-4">Pilih Pergeseran Huruf</h2>
+            <label for="shiftAmount" class="block mb-2">Jumlah Pergeseran:</label>
+            <input type="number" id="shiftAmount"
+                class="p-2 border border-green-500 rounded w-full mb-4 bg-black text-green-500" min="1" max="25"
+                value="1">
+            <button id="applyShiftBtn"
+                class="btn-action bg-blue-500 text-white hover:bg-blue-600 w-full">Terapkan</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- Kode Enkripsi & Dekripsi Gambar --- */
+        const fileInput = document.getElementById('fileInput');
+        const outputDiv = document.getElementById('output');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadImageBtn = document.getElementById('downloadImageBtn');
+        const imageOutput = document.getElementById('imageOutput');
+        const uploadTxtInput = document.getElementById('uploadTxtInput');
+        const filenameInput = document.getElementById('filenameInput');
+        const imageFilenameInput = document.getElementById('imageFilenameInput');
+        const encryptionResultTitle = document.getElementById('encryptionResultTitle');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const txtFileInfo = document.getElementById('txtFileInfo');
+        const txtFileSize = document.getElementById('txtFileSize');
+        const lockBtn = document.getElementById('lockBtn');
+        const lockModal = document.getElementById('lockModal');
+        const closeModal = document.querySelectorAll('.close');
+        const shiftAmountInput = document.getElementById('shiftAmount');
+        const applyShiftBtn = document.getElementById('applyShiftBtn');
+        const shiftBackAmountInput = document.getElementById('shiftBackAmount');
+        const githubBtn = document.getElementById('githubBtn');
+        const githubInputContainer = document.getElementById('githubInputContainer');
+        const githubUrlInput = document.getElementById('githubUrlInput');
+        const fetchGithubBtn = document.getElementById('fetchGithubBtn');
+        const loadingProgressUpload = document.getElementById('loadingProgressUpload');
+        const loadingProgressDecrypt = document.getElementById('loadingProgressDecrypt');
+        const formatSelect = document.getElementById('formatSelect');
+        let currentImageSrc = '';
+        let originalFileName = '';
+        const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+
+        function formatFileSize(size) {
+            const mbSize = size / (1024 * 1024);
+            return `${mbSize.toFixed(2)} MB`;
+        }
+
+        function caesarCipher(str, shift) {
+            return str.replace(/[a-zA-Z]/g, function (c) {
+                const base = c <= 'Z' ? 65 : 97;
+                return String.fromCharCode((c.charCodeAt(0) - base + shift) % 26 + base);
+            });
+        }
+
+        function caesarDecipher(str, shift) {
+            return str.replace(/[a-zA-Z]/g, function (c) {
+                const base = c <= 'Z' ? 65 : 97;
+                return String.fromCharCode((c.charCodeAt(0) - base - shift + 26) % 26 + base);
+            });
+        }
+
+        function dataURLtoBlob(dataurl) {
+            const arr = dataurl.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) { u8arr[n] = bstr.charCodeAt(n); }
+            return new Blob([u8arr], { type: mime });
+        }
+
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    let scalingFactor = 1.0;
+                    let quality = 0.9;
+                    let canvas = document.createElement("canvas");
+                    let ctx = canvas.getContext("2d");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    function tryCompression() {
+                        const dataUrl = canvas.toDataURL("image/jpeg", quality);
+                        const blob = dataURLtoBlob(dataUrl);
+                        if (blob.size <= MAX_FILE_SIZE || quality <= 0.1) {
+                            if (blob.size > MAX_FILE_SIZE) {
+                                scalingFactor *= 0.9;
+                                canvas.width = img.width * scalingFactor;
+                                canvas.height = img.height * scalingFactor;
+                                ctx = canvas.getContext("2d");
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                quality = 0.9;
+                                tryCompression();
+                            } else {
+                                callback(dataUrl);
+                            }
+                        } else {
+                            quality -= 0.1;
+                            tryCompression();
+                        }
+                    }
+                    tryCompression();
+                };
+                img.onerror = function () { alert("Gagal memproses gambar untuk kompresi."); };
+                img.src = e.target.result;
+            };
+            reader.onerror = function () { alert("Gagal membaca file untuk kompresi."); };
+            reader.readAsDataURL(file);
+        }
+
+        function triggerProcessedAnimation() {
+            outputDiv.classList.add('processed-animation');
+            setTimeout(() => { outputDiv.classList.remove('processed-animation'); }, 600);
+        }
+
+        fileInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                originalFileName = file.name.split('.').slice(0, -1).join('');
+                if (file.size > MAX_FILE_SIZE) {
+                    if (!confirm('File yang Anda pilih sangat besar. File akan dikompres otomatis hingga ukurannya di bawah 50 MB. Lanjutkan?')) { return; }
+                    loadingProgressUpload.classList.remove('hidden');
+                    compressImage(file, function (compressedDataUrl) {
+                        outputDiv.textContent = compressedDataUrl;
+                        outputDiv.classList.remove('hidden');
+                        downloadBtn.classList.remove('hidden');
+                        copyBtn.classList.remove('hidden');
+                        filenameInput.classList.remove('hidden');
+                        formatSelect.classList.remove('hidden');
+                        lockBtn.classList.remove('hidden');
+                        encryptionResultTitle.classList.remove('hidden');
+                        fileInfo.classList.remove('hidden');
+                        fileName.textContent = `Nama File: ${file.name}`;
+                        let blob = dataURLtoBlob(compressedDataUrl);
+                        fileSize.textContent = `Ukuran File: ${formatFileSize(blob.size)}`;
+                        loadingProgressUpload.classList.add('hidden');
+                        triggerProcessedAnimation();
+                    });
+                } else {
+                    loadingProgressUpload.classList.remove('hidden');
+                    const reader = new FileReader();
+                    reader.onerror = function () {
+                        loadingProgressUpload.classList.add('hidden');
+                        alert('Terjadi kesalahan saat memproses file.');
+                    };
+                    reader.onprogress = function (e) {
+                        if (e.lengthComputable) {
+                            const progressBar = document.querySelector('#loadingProgressUpload .progress-bar');
+                            let percent = (e.loaded / e.total) * 100;
+                            progressBar.style.width = percent + '%';
+                        }
+                    };
+                    reader.onload = function (e) {
+                        const base64String = e.target.result;
+                        outputDiv.textContent = base64String;
+                        outputDiv.classList.remove('hidden');
+                        downloadBtn.classList.remove('hidden');
+                        copyBtn.classList.remove('hidden');
+                        filenameInput.classList.remove('hidden');
+                        formatSelect.classList.remove('hidden');
+                        lockBtn.classList.remove('hidden');
+                        encryptionResultTitle.classList.remove('hidden');
+                        fileInfo.classList.remove('hidden');
+                        fileName.textContent = `Nama File: ${file.name}`;
+                        fileSize.textContent = `Ukuran File: ${formatFileSize(file.size)}`;
+                        loadingProgressUpload.classList.add('hidden');
+                        triggerProcessedAnimation();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        uploadTxtInput.addEventListener('change', function (event) {
+            githubInputContainer.classList.add('hidden');
+            txtFileInfo.classList.add('hidden');
+            imageOutput.innerHTML = '';
+            const file = event.target.files[0];
+            if (file) {
+                if (file.size > MAX_FILE_SIZE) {
+                    if (!confirm('File teks yang Anda pilih sangat besar. Proses dekripsi mungkin memakan waktu lama. Lanjutkan?')) { return; }
+                }
+                loadingProgressDecrypt.classList.remove('hidden');
+                originalFileName = file.name.split('.').slice(0, -1).join('');
+                const reader = new FileReader();
+                reader.onerror = function () {
+                    loadingProgressDecrypt.classList.add('hidden');
+                    alert('Terjadi kesalahan saat memproses file teks.');
+                };
+                reader.onload = function (e) {
+                    let textContent = e.target.result;
+                    const shiftBackAmount = parseInt(shiftBackAmountInput.value);
+                    if (shiftBackAmount !== 0) {
+                        textContent = caesarDecipher(textContent, shiftBackAmount);
+                    }
+                    const img = document.createElement('img');
+                    img.src = textContent;
+                    img.alt = 'Gambar hasil dekripsi dari teks';
+                    img.className = 'max-w-full h-auto';
+                    imageOutput.innerHTML = '';
+                    imageOutput.appendChild(img);
+                    currentImageSrc = textContent;
+                    imageFilenameInput.classList.remove('hidden');
+                    downloadImageBtn.classList.remove('hidden');
+                    txtFileInfo.classList.remove('hidden');
+                    txtFileSize.textContent = `Ukuran File: ${formatFileSize(file.size)}`;
+                    loadingProgressDecrypt.classList.add('hidden');
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        downloadBtn.addEventListener('click', function () {
+            const textContent = outputDiv.textContent;
+            const fileNameToDownload = filenameInput.value.trim() || originalFileName || 'encrypted';
+            const fileExtension = formatSelect.value;
+            const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${fileNameToDownload}.${fileExtension}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
+
+        lockBtn.addEventListener('click', function () {
+            lockModal.style.display = 'block';
+        });
+
+        closeModal.forEach(close => {
+            close.addEventListener('click', function () { lockModal.style.display = 'none'; });
+        });
+
+        window.addEventListener('click', function (event) {
+            if (event.target == lockModal) { lockModal.style.display = 'none'; }
+        });
+
+        applyShiftBtn.addEventListener('click', function () {
+            const shiftAmount = parseInt(shiftAmountInput.value);
+            const originalText = outputDiv.textContent;
+            const encryptedText = caesarCipher(originalText, shiftAmount);
+            outputDiv.textContent = encryptedText;
+            lockModal.style.display = 'none';
+        });
+
+        githubBtn.addEventListener('click', function () {
+            githubInputContainer.classList.toggle('hidden');
+        });
+
+        fetchGithubBtn.addEventListener('click', function () {
+            const githubUrl = githubUrlInput.value.trim();
+            if (githubUrl) {
+                loadingProgressDecrypt.classList.remove('hidden');
+                imageOutput.innerHTML = '';
+                txtFileSize.textContent = '';
+                fetch(githubUrl)
+                    .then(response => {
+                        if (!response.ok) { throw new Error('Gagal mengambil file dari GitHub.'); }
+                        return response.text().then(data => ({ data, size: response.headers.get('content-length') }));
+                    })
+                    .then(({ data, size }) => {
+                        let textContent = data;
+                        const shiftBackAmount = parseInt(shiftBackAmountInput.value);
+                        if (shiftBackAmount !== 0) {
+                            textContent = caesarDecipher(textContent, shiftBackAmount);
+                        }
+                        const img = document.createElement('img');
+                        img.src = textContent;
+                        img.alt = 'Gambar hasil dekripsi dari teks';
+                        img.className = 'max-w-full h-auto';
+                        imageOutput.appendChild(img);
+                        currentImageSrc = textContent;
+                        imageFilenameInput.classList.remove('hidden');
+                        downloadImageBtn.classList.remove('hidden');
+                        txtFileInfo.classList.remove('hidden');
+                        txtFileSize.textContent = `Ukuran File: ${formatFileSize(size)}`;
+                        loadingProgressDecrypt.classList.add('hidden');
+                    })
+                    .catch(error => {
+                        loadingProgressDecrypt.classList.add('hidden');
+                        alert(error.message);
+                    });
+            }
+        });
+
+        downloadImageBtn.addEventListener('click', function () {
+            if (currentImageSrc) {
+                const a = document.createElement('a');
+                a.href = currentImageSrc;
+                const imageFilename = imageFilenameInput.value.trim() || originalFileName;
+                a.download = `${imageFilename}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                currentImageSrc = '';
+            } else {
+                alert('Tidak ada gambar yang tersedia untuk diunduh.');
+            }
+        });
+    </script>
+</body>
+
+</html>
