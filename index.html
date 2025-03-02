@@ -190,6 +190,12 @@
         return;
       }
 
+      // Jika perintah adalah "--refresh", refresh halaman
+      if (command === '--refresh') {
+        location.reload();
+        return;
+      }
+
       // Membuat container entry untuk perintah dan statusnya
       const entry = document.createElement('div');
       entry.classList.add('history-entry');
