@@ -25,13 +25,25 @@
       transform: translateX(-50%);
     }
 
-    /* Container histori perintah */
+    /* Container histori perintah dengan scrollbar custom */
     .history-container {
       max-height: 150px;
       overflow-y: auto;
       margin-bottom: 1rem;
       padding: 0.5rem;
       background-color: #111;
+      border-radius: 0.375rem;
+    }
+    /* Custom scrollbar untuk Webkit (Chrome, Edge, Safari) */
+    .history-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    .history-container::-webkit-scrollbar-track {
+      background: #111;
+      border-radius: 0.375rem;
+    }
+    .history-container::-webkit-scrollbar-thumb {
+      background: #39FF14;
       border-radius: 0.375rem;
     }
 
@@ -54,6 +66,11 @@
       border-radius: 0.375rem;
       background-color: #000;
       overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    /* Perbesar tampilan container saat proses berjalan */
+    .input-container.processing {
+      transform: scale(1.1);
     }
 
     /* Elemen teks yang dapat diedit */
@@ -118,7 +135,7 @@
   <div class="container">
     <!-- Histori perintah ditampilkan di sini -->
     <div id="commandHistory" class="history-container"></div>
-    <div class="input-container">
+    <div class="input-container" id="inputContainer">
       <!-- Elemen contenteditable untuk input -->
       <div id="commandInput" class="command-text" contenteditable="true" spellcheck="false"></div>
       <!-- Kursor kustom -->
@@ -135,7 +152,7 @@
     const mirror = document.getElementById('mirror');
     const infoMsg = document.getElementById('infoMsg');
     const commandHistoryContainer = document.getElementById('commandHistory');
-    const inputContainer = document.querySelector('.input-container');
+    const inputContainer = document.getElementById('inputContainer');
 
     // Fungsi untuk menyimpan histori ke localStorage
     function saveHistory() {
@@ -183,12 +200,16 @@
       const command = (commandInput.innerText || '').trim();
       if (command === '') return;
 
+      // Tambahkan class processing untuk memperbesar tampilan textbox
+      inputContainer.classList.add('processing');
+
       // Jika perintah adalah "--clear", hapus histori dari tampilan dan localStorage
       if (command === '--clear') {
         commandHistoryContainer.innerHTML = '';
         localStorage.removeItem('commandHistory');
         commandInput.innerText = '';
         updateCaretPosition();
+        inputContainer.classList.remove('processing');
         return;
       }
 
@@ -250,7 +271,7 @@
           commandHistoryContainer.scrollTop = commandHistoryContainer.scrollHeight;
           saveHistory();
 
-          // Setelah total 9 detik, eksekusi perintah jika dikenali
+          // Setelah total 9 detik, eksekusi perintah jika dikenali dan hapus class processing
           setTimeout(() => {
             if (command === '>enkripsi_gambar --open') {
               window.location.href = 'enkripsi.html';
@@ -268,6 +289,8 @@
               infoMsg.style.display = 'block';
               infoMsg.innerText = " >enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >info";
             }
+            // Hapus efek perbesaran setelah proses selesai
+            inputContainer.classList.remove('processing');
           }, 3000);
         }, 3000);
       }, 3000);
