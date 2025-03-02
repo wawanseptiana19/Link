@@ -104,24 +104,6 @@
       }
     }
 
-    /* Efek loading titik: animasi berjalan 3 detik, berhenti dengan nilai final "..." */
-    .loading-dots {
-      display: inline-block;
-      overflow: hidden;
-      vertical-align: bottom;
-      width: 0ch;
-      animation: loadingDots 3s steps(3, end) forwards;
-    }
-
-    @keyframes loadingDots {
-      0% {
-        width: 0ch;
-      }
-      100% {
-        width: 3ch;
-      }
-    }
-
     /* Elemen mirror untuk mengukur lebar teks secara akurat */
     .mirror {
       position: absolute;
@@ -198,7 +180,21 @@
       selection.addRange(range);
     }
 
-    // Fungsi untuk menjalankan perintah dengan status bertahap dan efek loading
+    // Fungsi untuk menganimasikan progres (dalam persen)
+    function animateProgress(spanEl, duration, callback) {
+      const startTime = Date.now();
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(100, Math.floor((elapsed / duration) * 100));
+        spanEl.innerText = progress + "%";
+        if (progress >= 100) {
+          clearInterval(interval);
+          if (callback) callback();
+        }
+      }, 100);
+    }
+
+    // Fungsi untuk menjalankan perintah dengan status bertahap dan animasi progress
     function runCommand() {
       const command = (commandInput.innerText || '').trim();
       if (command === '') return;
@@ -231,9 +227,9 @@
       commandLine.innerText = command;
       entry.appendChild(commandLine);
 
-      // Baris status "mencari" dengan loading dots (animasi berjalan 3 detik)
+      // Baris status "mencari" dengan animasi progress
       const statusSearching = document.createElement('p');
-      statusSearching.innerHTML = "mencari<span class='loading-dots'>...</span>";
+      statusSearching.innerHTML = "mencari <span class='progress'>0%</span>";
       entry.appendChild(statusSearching);
 
       // Tambahkan entry ke histori dan simpan ke localStorage
@@ -245,16 +241,20 @@
       commandInput.innerText = '';
       updateCaretPosition();
 
-      // Setelah 3 detik, tambahkan status "mendekripsi" dengan loading dots
-      setTimeout(() => {
+      // Animasi progres untuk status "mencari"
+      const progressSpan1 = statusSearching.querySelector('.progress');
+      animateProgress(progressSpan1, 3000, () => {
+        // Setelah "mencari" selesai, tambahkan status "mendekripsi"
         const statusDecrypting = document.createElement('p');
-        statusDecrypting.innerHTML = "mendekripsi<span class='loading-dots'>...</span>";
+        statusDecrypting.innerHTML = "mendekripsi <span class='progress'>0%</span>";
         entry.appendChild(statusDecrypting);
         commandHistoryContainer.scrollTop = commandHistoryContainer.scrollHeight;
         saveHistory();
 
-        // Setelah 3 detik lagi, tambahkan status final
-        setTimeout(() => {
+        // Animasi progres untuk status "mendekripsi"
+        const progressSpan2 = statusDecrypting.querySelector('.progress');
+        animateProgress(progressSpan2, 3000, () => {
+          // Setelah kedua animasi selesai, tampilkan status final
           const statusFinal = document.createElement('p');
           if (
             command === '>enkripsi_gambar --open' ||
@@ -274,7 +274,7 @@
           commandHistoryContainer.scrollTop = commandHistoryContainer.scrollHeight;
           saveHistory();
 
-          // Setelah total 9 detik, eksekusi perintah jika dikenali
+          // Setelah status final, kembalikan ukuran textbox dan eksekusi perintah jika dikenali
           setTimeout(() => {
             inputContainer.classList.remove('processing'); // kembalikan ukuran textbox ke normal
             if (command === '>enkripsi_gambar --open') {
@@ -294,8 +294,8 @@
               infoMsg.innerText = " >enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >info";
             }
           }, 3000);
-        }, 3000);
-      }, 3000);
+        });
+      });
     }
 
     // Jalankan perintah saat menekan Enter
