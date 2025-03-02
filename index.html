@@ -14,17 +14,36 @@
             color: #39FF14;
             margin: 0;
             padding: 0;
+            height: 100vh;
         }
 
         .container {
             max-width: 800px;
-            margin: 2rem auto;
             padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 1.5rem;
+        /* Container histori perintah */
+        .history-container {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #111;
+            border-radius: 0.375rem;
+        }
+
+        .history-entry {
+            margin-bottom: 0.5rem;
+        }
+
+        .history-entry p {
+            margin: 0;
+            padding: 0.2rem 0;
+            font-size: 0.8rem;
         }
 
         /* Container seperti kotak input */
@@ -32,9 +51,9 @@
             position: relative;
             width: 100%;
             padding: 1rem;
-            border: 2px solid #39FF14;
+            border: none;
             border-radius: 0.375rem;
-            background-color: #111;
+            background-color: #000;
             overflow: hidden;
         }
 
@@ -44,7 +63,6 @@
             font-size: 1rem;
             color: #39FF14;
             caret-color: transparent;
-            /* sembunyikan kursor bawaan */
             position: relative;
             z-index: 2;
         }
@@ -53,15 +71,11 @@
         .custom-caret {
             position: absolute;
             bottom: 5px;
-            /* atur agar berada tepat di bawah teks */
             width: 10px;
-            /* lebar kursor, bisa disesuaikan */
             height: 4px;
-            /* kursor menjadi lebih tebal */
             background-color: #39FF14;
             animation: blink 1s step-start infinite;
             z-index: 1;
-            /* ditempatkan di belakang teks */
             pointer-events: none;
         }
 
@@ -71,31 +85,23 @@
             }
         }
 
-        .btn-run {
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
-            background-color: #111;
-            color: #39FF14;
-            border: 1px solid #39FF14;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        /* Efek loading titik: animasi berjalan 3 detik, berhenti dengan nilai final "..." */
+        .loading-dots {
+            display: inline-block;
+            overflow: hidden;
+            vertical-align: bottom;
+            width: 0ch;
+            animation: loadingDots 3s steps(3, end) forwards;
         }
 
-        .btn-run:hover {
-            background-color: #222;
-        }
+        @keyframes loadingDots {
+            0% {
+                width: 0ch;
+            }
 
-        .error-message {
-            color: #FF0000;
-            margin-top: 1rem;
-            display: none;
-        }
-
-        .info-message {
-            color: #39FF14;
-            margin-top: 1rem;
-            display: none;
+            100% {
+                width: 3ch;
+            }
         }
 
         /* Elemen mirror untuk mengukur lebar teks secara akurat */
@@ -108,20 +114,13 @@
             font-size: 1rem;
             font-family: inherit;
         }
-
-        /* Styling untuk pesan proses */
-        .processing-message {
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            text-align: center;
-            display: none;
-        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Console Command</h1>
+        <!-- Histori perintah ditampilkan di sini -->
+        <div id="commandHistory" class="history-container"></div>
         <div class="input-container">
             <!-- Elemen contenteditable untuk input -->
             <div id="commandInput" class="command-text" contenteditable="true" spellcheck="false"></div>
@@ -130,10 +129,6 @@
             <!-- Elemen mirror untuk mengukur lebar teks -->
             <span id="mirror" class="mirror"></span>
         </div>
-        <button id="btnRun" class="btn-run">Run</button>
-        <p id="processingMsg" class="processing-message"></p>
-        <p id="errorMsg" class="error-message">error!</p>
-        <!-- Elemen info message untuk menampilkan daftar perintah -->
         <p id="infoMsg" class="info-message"></p>
     </div>
 
@@ -141,11 +136,25 @@
         const commandInput = document.getElementById('commandInput');
         const customCaret = document.getElementById('customCaret');
         const mirror = document.getElementById('mirror');
-        const btnRun = document.getElementById('btnRun');
-        const errorMsg = document.getElementById('errorMsg');
-        const processingMsg = document.getElementById('processingMsg');
         const infoMsg = document.getElementById('infoMsg');
+        const commandHistoryContainer = document.getElementById('commandHistory');
         const inputContainer = document.querySelector('.input-container');
+
+        // Fungsi untuk menyimpan histori ke localStorage
+        function saveHistory() {
+            localStorage.setItem('commandHistory', commandHistoryContainer.innerHTML);
+        }
+
+        // Fungsi untuk memuat histori dari localStorage saat halaman dimuat
+        function loadHistory() {
+            const savedHistory = localStorage.getItem('commandHistory');
+            if (savedHistory) {
+                commandHistoryContainer.innerHTML = savedHistory;
+            }
+        }
+
+        // Panggil loadHistory saat halaman siap
+        loadHistory();
 
         // Fungsi untuk mengupdate posisi kursor kustom menggunakan elemen mirror
         function updateCaretPosition() {
@@ -156,59 +165,102 @@
             customCaret.style.left = (paddingLeft + mirrorWidth) + 'px';
         }
 
-        // Fungsi untuk menghasilkan string acak dengan panjang tertentu
-        function generateRandomString(length) {
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += characters.charAt(Math.floor(Math.random() * characters.length));
-            }
-            return result;
+        // Fungsi untuk selalu memposisikan kursor di akhir teks
+        function setCaretToEnd(el) {
+            el.focus();
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
         }
 
-        // Fungsi untuk menjalankan perintah dengan delay 3 detik dan menampilkan proses acak
+        // Fungsi untuk menjalankan perintah dengan status bertahap dan efek loading
         function runCommand() {
-            // Sembunyikan pesan error dan info jika ada
-            errorMsg.style.display = 'none';
-            infoMsg.style.display = 'none';
+            const command = (commandInput.innerText || '').trim();
+            if (command === '') return;
 
-            // Tampilkan pesan proses dengan string acak
-            processingMsg.style.display = 'block';
-            processingMsg.innerText = "Memproses: " + generateRandomString(24);
+            // Jika perintah adalah "--clear", hapus histori dari tampilan dan localStorage
+            if (command === '--clear') {
+                commandHistoryContainer.innerHTML = '';
+                localStorage.removeItem('commandHistory');
+                commandInput.innerText = '';
+                updateCaretPosition();
+                return;
+            }
 
-            // Perbarui string acak setiap 300ms
-            const interval = setInterval(() => {
-                processingMsg.innerText = "Memproses: " + generateRandomString(24);
-            }, 300);
+            // Membuat container entry untuk perintah dan statusnya
+            const entry = document.createElement('div');
+            entry.classList.add('history-entry');
 
-            // Setelah 3 detik, hentikan interval dan jalankan perintah
+            // Baris perintah yang dimasukkan
+            const commandLine = document.createElement('p');
+            commandLine.innerText = command;
+            entry.appendChild(commandLine);
+
+            // Baris status "mencari" dengan loading dots (animasi berjalan 3 detik)
+            const statusSearching = document.createElement('p');
+            statusSearching.innerHTML = "mencari<span class='loading-dots'>...</span>";
+            entry.appendChild(statusSearching);
+
+            // Tambahkan entry ke histori dan simpan ke localStorage
+            commandHistoryContainer.appendChild(entry);
+            commandHistoryContainer.scrollTop = commandHistoryContainer.scrollHeight;
+            saveHistory();
+
+            // Kosongkan textbox dan update caret
+            commandInput.innerText = '';
+            updateCaretPosition();
+
+            // Setelah 3 detik, tambahkan status "mendekripsi" dengan loading dots
             setTimeout(() => {
-                clearInterval(interval);
-                processingMsg.style.display = 'none';
+                const statusDecrypting = document.createElement('p');
+                statusDecrypting.innerHTML = "mendekripsi<span class='loading-dots'>...</span>";
+                entry.appendChild(statusDecrypting);
+                commandHistoryContainer.scrollTop = commandHistoryContainer.scrollHeight;
+                saveHistory();
 
-                const command = (commandInput.innerText || '').trim();
+                // Setelah 3 detik lagi, tambahkan status final
+                setTimeout(() => {
+                    const statusFinal = document.createElement('p');
+                    if (
+                        command === '>enkripsi_gambar --open' ||
+                        command === '>pamer_bakat --open' ||
+                        command === '>as_database --open' ||
+                        command === '>enkripsi_kata --open' ||
+                        command === '>tingkatkan_gambar --open' ||
+                        command === '>info'
+                    ) {
+                        statusFinal.innerText = "sukses";
+                    } else {
+                        statusFinal.innerText = "gagal memproses";
+                        statusFinal.style.color = "#FF0000";
+                    }
+                    entry.appendChild(statusFinal);
+                    commandHistoryContainer.scrollTop = commandHistoryContainer.scrollHeight;
+                    saveHistory();
 
-                if (command === '>enkripsi_gambar --open') {
-                    window.location.href = 'enkripsi.html';
-                } else if (command === '>pamer_bakat --open') {
-                    window.location.href = 'pamer_bakat.html';
-                } else if (command === '>as_database --open') {
-                    window.location.href = 'as_database.html';
-                } else if (command === '>enkripsi_kata --open') {
-                    window.location.href = 'enkripsi_kata.html';
-                } else if (command === '>tingkatkan_gambar --open') {
-                    window.location.href = 'tingkatkan_gambar.html';
-                } else if (command === '>info') {
-                    // Tampilkan daftar perintah yang bisa dimasukkan
-                    infoMsg.style.display = 'block';
-                    infoMsg.innerText = " >enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >info";
-                } else {
-                    errorMsg.style.display = 'block';
-                }
+                    // Setelah total 9 detik, eksekusi perintah jika dikenali
+                    setTimeout(() => {
+                        if (command === '>enkripsi_gambar --open') {
+                            window.location.href = 'enkripsi.html';
+                        } else if (command === '>pamer_bakat --open') {
+                            window.location.href = 'pamer_bakat.html';
+                        } else if (command === '>as_database --open') {
+                            window.location.href = 'as_database.html';
+                        } else if (command === '>enkripsi_kata --open') {
+                            window.location.href = 'enkripsi_kata.html';
+                        } else if (command === '>tingkatkan_gambar --open') {
+                            window.location.href = 'tingkatkan_gambar.html';
+                        } else if (command === '>info') {
+                            infoMsg.style.display = 'block';
+                            infoMsg.innerText = " >enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >info";
+                        }
+                    }, 3000);
+                }, 3000);
             }, 3000);
         }
-
-        btnRun.addEventListener('click', runCommand);
 
         // Jalankan perintah saat menekan Enter
         commandInput.addEventListener('keydown', function (event) {
@@ -221,6 +273,25 @@
         // Update posisi kursor saat terjadi perubahan pada teks
         commandInput.addEventListener('input', updateCaretPosition);
         updateCaretPosition();
+
+        // Setiap kali pengguna mengklik di dalam textbox, posisikan kursor di akhir
+        commandInput.addEventListener('click', function () {
+            setCaretToEnd(commandInput);
+        });
+
+        // Jika pengguna menggunakan tombol panah untuk mengubah posisi kursor, kembalikan ke akhir
+        commandInput.addEventListener('keyup', function (event) {
+            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+                setCaretToEnd(commandInput);
+            }
+        });
+
+        // Fokuskan textbox saat pengguna mengklik di mana saja di halaman
+        document.addEventListener('click', function (event) {
+            if (event.target !== commandInput) {
+                commandInput.focus();
+            }
+        });
     </script>
 </body>
 
