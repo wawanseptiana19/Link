@@ -239,6 +239,7 @@
             command === '>enkripsi_kata --open' ||
             command === '>tingkatkan_gambar --open' ||
             command === '>analisis_teks --open' ||
+            command === '>html_run --open' ||  // Tambahan agar html_run juga sukses
             command === '>info'
           ) {
             statusFinal.innerText = "sukses";
@@ -264,12 +265,12 @@
             } else if (command === '>tingkatkan_gambar --open') {
               window.location.href = 'tingkatkan_gambar.html';
             } else if (command === '>analisis_teks --open') {
-            window.location.href = 'analisis_teks.html';
+              window.location.href = 'analisis_teks.html';
             } else if (command === '>html_run --open') {
               window.location.href = 'html_run.html';
             } else if (command === '>info') {
               infoMsg.style.display = 'block';
-              infoMsg.innerText = " >enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >info";
+              infoMsg.innerText = " >enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >html_run --open, >info";
             }
           }, 3000);
         });
