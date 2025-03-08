@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Link - Tema Hacker & Retro Pixel</title>
+  <title>Pamer Bakat</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -17,7 +17,7 @@
       padding: 0;
     }
 
-    /* Modal Password */
+    /* Modal Upload File untuk Password */
     #passwordModal {
       position: fixed;
       z-index: 2000;
@@ -32,15 +32,26 @@
       flex-direction: column;
     }
 
-    #passwordModal input {
-      padding: 0.5rem;
+    /* Sembunyikan input file asli */
+    #passwordFile {
+      display: none;
+    }
+
+    /* Gaya tombol custom untuk file input */
+    .custom-file-label {
+      padding: 0.5rem 1rem;
+      background-color: #111;
       border: 1px solid #39FF14;
       border-radius: 0.375rem;
-      background-color: #000;
       color: #39FF14;
+      cursor: pointer;
+      display: inline-block;
+      transition: background-color 0.3s ease;
       margin-bottom: 1rem;
-      width: 80%;
-      max-width: 300px;
+    }
+
+    .custom-file-label:hover {
+      background-color: #222;
     }
 
     #passwordModal button {
@@ -50,6 +61,7 @@
       border-radius: 0.375rem;
       color: #39FF14;
       cursor: pointer;
+      margin-top: 0.5rem;
     }
 
     #passwordModal p {
@@ -62,7 +74,7 @@
       display: none;
     }
 
-    /* Card styling */
+    /* Styling konten utama dan komponen lainnya */
     .card {
       background-color: rgba(0, 0, 0, 0.9);
       padding: 1.5rem;
@@ -335,7 +347,6 @@
     }
 
     @media screen and (max-width: 600px) {
-
       .card,
       .modal-content,
       #linksContainer,
@@ -348,11 +359,15 @@
 </head>
 
 <body>
-  <!-- Modal Password -->
+  <!-- Modal Upload File untuk Password -->
   <div id="passwordModal">
-    <h1>Masukkan Password</h1>
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button id="btnSubmitPassword"><i class="fas fa-lock"></i> Masuk</button>
+    <h1>Upload File Password</h1>
+    <!-- Label custom untuk memilih file -->
+    <label for="passwordFile" class="custom-file-label">
+      <i class="fas fa-file"></i> Masukan Key
+    </label>
+    <input type="file" id="passwordFile" accept=".bat">
+    <button id="btnSubmitPassword"><i class="fas fa-upload"></i> Masuk</button>
     <p id="passwordError" class="hidden">Password salah. Silakan coba lagi.</p>
   </div>
 
@@ -360,8 +375,7 @@
   <div id="mainContent">
     <!-- Form pencarian -->
     <form id="searchForm" class="search-form">
-      <input type="text" id="searchInput" class="search-input"
-        placeholder="Cari link berdasarkan nama orang atau nama link...">
+      <input type="text" id="searchInput" class="search-input" placeholder="Cari link berdasarkan nama orang atau nama link...">
       <button type="submit" class="btn-search"><i class="fas fa-search"></i> Cari</button>
     </form>
 
@@ -430,57 +444,57 @@
     <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-      // Password yang benar (ganti dengan password yang diinginkan)
-      const correctPassword = "dakota775";
+      // Password yang benar
+      const correctPassword = "YQDYIpjYnF7PZtDYs6e8yZJmGqTuB4rgZQSaenc618nmy4x095";
 
-      // Elemen modal password
+      // Elemen modal upload password
       const passwordModal = document.getElementById('passwordModal');
-      const passwordInput = document.getElementById('passwordInput');
+      const passwordFile = document.getElementById('passwordFile');
       const btnSubmitPassword = document.getElementById('btnSubmitPassword');
       const passwordError = document.getElementById('passwordError');
       const mainContent = document.getElementById('mainContent');
 
       btnSubmitPassword.addEventListener('click', () => {
-        const enteredPassword = passwordInput.value;
-        if (enteredPassword === correctPassword) {
-          // Jika password benar, sembunyikan modal dan tampilkan konten utama
-          passwordModal.style.display = 'none';
-          mainContent.style.display = 'block';
-        } else {
-          // Jika salah, tampilkan pesan error
+        if (passwordFile.files.length === 0) {
+          passwordError.textContent = "Masukan Key";
           passwordError.classList.remove('hidden');
+          return;
         }
-      });
 
-      // Opsional: aktifkan enter key pada input password
-      passwordInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') {
-          btnSubmitPassword.click();
+        const file = passwordFile.files[0];
+        // Pastikan file yang diupload memiliki ekstensi .bat
+        if (!file.name.endsWith('.bat')) {
+          passwordError.textContent = "File harus berformat .bat.";
+          passwordError.classList.remove('hidden');
+          return;
         }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          // Ubah file menjadi teks (meskipun format .bat, kita baca sebagai teks)
+          const fileContent = event.target.result.trim();
+          if (fileContent === correctPassword) {
+            // Jika password benar, sembunyikan modal dan tampilkan konten utama
+            passwordModal.style.display = 'none';
+            mainContent.style.display = 'block';
+          } else {
+            passwordError.textContent = "Password salah. Silakan coba lagi.";
+            passwordError.classList.remove('hidden');
+          }
+        };
+        reader.onerror = function () {
+          passwordError.textContent = "Terjadi kesalahan saat membaca file.";
+          passwordError.classList.remove('hidden');
+        };
+        reader.readAsText(file);
       });
-
-      // Fungsi caesarDecipher sesuai dengan kode sebelumnya
-      function caesarDecipher(str, shift) {
-        return str.replace(/[a-zA-Z]/g, function (c) {
-          const base = c <= 'Z' ? 65 : 97;
-          return String.fromCharCode((c.charCodeAt(0) - base - shift + 26) % 26 + base);
-        });
-      }
-
-      // Fungsi caesarCipher untuk enkripsi (shift ke depan)
-      function caesarCipher(str, shift) {
-        return str.replace(/[a-zA-Z]/g, function (c) {
-          const base = c <= 'Z' ? 65 : 97;
-          return String.fromCharCode((c.charCodeAt(0) - base + shift) % 26 + base);
-        });
-      }
 
       // Konfigurasi Supabase – sesuaikan dengan kredensial Anda
       const SUPABASE_URL = 'https://qzdvdfebkzlwkhvxwsju.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6ZHZkZmVia3psd2todnh3c2p1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMTA4OTksImV4cCI6MjA1Mjc4Njg5OX0.Z9XKmX49vu0kZwn6YMom8QeLNNdKQMXCIkxcIoHKQFs';
       const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // Elemen DOM
+      // Elemen DOM untuk fitur lainnya
       const btnShowForm = document.getElementById('btnShowForm');
       const modalForm = document.getElementById('modalForm');
       const closeModal = document.querySelector('#modalForm .close');
@@ -779,6 +793,22 @@
         // Revoke object URL setelah download
         URL.revokeObjectURL(url);
       });
+
+      // Fungsi Caesar cipher untuk enkripsi (shift ke depan)
+      function caesarCipher(str, shift) {
+        return str.replace(/[a-zA-Z]/g, function (c) {
+          const base = c <= 'Z' ? 65 : 97;
+          return String.fromCharCode((c.charCodeAt(0) - base + shift) % 26 + base);
+        });
+      }
+
+      // Fungsi Caesar decipher untuk dekripsi (shift ke belakang)
+      function caesarDecipher(str, shift) {
+        return str.replace(/[a-zA-Z]/g, function (c) {
+          const base = c <= 'Z' ? 65 : 97;
+          return String.fromCharCode((c.charCodeAt(0) - base - shift + 26) % 26 + base);
+        });
+      }
 
       window.addEventListener('DOMContentLoaded', () => loadLinks());
     </script>
