@@ -24,7 +24,7 @@
       left: 50%;
       transform: translateX(-50%);
     }
-    /* Container histori perintah */
+    /* Histori perintah */
     .history-container {
       max-height: 150px;
       overflow-y: auto;
@@ -33,7 +33,6 @@
       background-color: #111;
       border-radius: 0.375rem;
     }
-    /* Desain custom scroll bar */
     .history-container::-webkit-scrollbar {
       width: 8px;
     }
@@ -53,7 +52,7 @@
       padding: 0.2rem 0;
       font-size: 0.8rem;
     }
-    /* Container seperti kotak input */
+    /* Box input */
     .input-container {
       position: relative;
       width: 100%;
@@ -64,11 +63,9 @@
       overflow: hidden;
       transition: transform 0.3s ease;
     }
-    /* Efek memperbesar textbox saat memproses */
     .input-container.processing {
       transform: scale(1.2);
     }
-    /* Elemen teks yang dapat diedit */
     .command-text {
       outline: none;
       font-size: 1rem;
@@ -78,7 +75,7 @@
       z-index: 2;
       white-space: pre;
     }
-    /* Kursor kustom: tebal dan diletakkan di belakang teks */
+    /* Kursor kustom */
     .custom-caret {
       position: absolute;
       bottom: 5px;
@@ -90,11 +87,8 @@
       pointer-events: none;
     }
     @keyframes blink {
-      50% {
-        opacity: 0;
-      }
+      50% { opacity: 0; }
     }
-    /* Elemen mirror untuk mengukur lebar teks secara akurat */
     .mirror {
       position: absolute;
       top: -9999px;
@@ -104,10 +98,10 @@
       font-size: 1rem;
       font-family: inherit;
     }
-    /* Styling untuk menu aplikasi (ATM-like) di atas text box */
+    /* Menu aplikasi (ATM-like) di atas layar */
     .app-menu {
       position: fixed;
-      top: 20px; /* menu berada di atas layar */
+      top: 20px;
       width: 150px;
       display: none;
     }
@@ -133,19 +127,17 @@
   </style>
 </head>
 <body>
-  <!-- Menu aplikasi di sisi kiri dan kanan layar (posisi atas) -->
+  <!-- Menu aplikasi di sisi kiri dan kanan -->
   <div id="appMenuLeft" class="app-menu app-menu-left"></div>
   <div id="appMenuRight" class="app-menu app-menu-right"></div>
 
   <div class="container">
-    <!-- Histori perintah ditampilkan di sini -->
+    <!-- Histori perintah -->
     <div id="commandHistory" class="history-container"></div>
+    <!-- Box input -->
     <div class="input-container" id="inputContainer">
-      <!-- Elemen contenteditable untuk input -->
       <div id="commandInput" class="command-text" contenteditable="true" spellcheck="false"></div>
-      <!-- Kursor kustom -->
       <span id="customCaret" class="custom-caret"></span>
-      <!-- Elemen mirror untuk mengukur lebar teks -->
       <span id="mirror" class="mirror"></span>
     </div>
   </div>
@@ -159,24 +151,21 @@
     const appMenuLeft = document.getElementById('appMenuLeft');
     const appMenuRight = document.getElementById('appMenuRight');
 
-    // Fungsi untuk menyimpan histori ke localStorage
+    // Simpan dan muat histori perintah
     function saveHistory() {
       localStorage.setItem('commandHistory', commandHistoryContainer.innerHTML);
     }
-    // Fungsi untuk memuat histori dari localStorage saat halaman dimuat
     function loadHistory() {
       const savedHistory = localStorage.getItem('commandHistory');
-      if (savedHistory) {
-        commandHistoryContainer.innerHTML = savedHistory;
-      }
+      if (savedHistory) commandHistoryContainer.innerHTML = savedHistory;
     }
-    // Panggil loadHistory saat halaman siap
     loadHistory();
-    // Fokuskan textbox saat halaman selesai dimuat
-    document.addEventListener('DOMContentLoaded', function() {
+
+    document.addEventListener('DOMContentLoaded', () => {
       commandInput.focus();
     });
-    // Fungsi untuk mengupdate posisi kursor kustom menggunakan elemen mirror
+
+    // Update posisi kursor kustom
     function updateCaretPosition() {
       mirror.textContent = commandInput.innerText || '';
       const mirrorWidth = mirror.offsetWidth;
@@ -184,7 +173,7 @@
       const paddingLeft = parseInt(containerStyle.paddingLeft);
       customCaret.style.left = (paddingLeft + mirrorWidth) + 'px';
     }
-    // Fungsi untuk selalu memposisikan kursor di akhir teks
+    // Set kursor ke akhir teks
     function setCaretToEnd(el) {
       el.focus();
       const range = document.createRange();
@@ -194,7 +183,7 @@
       selection.removeAllRanges();
       selection.addRange(range);
     }
-    // Fungsi untuk menganimasikan progres (dalam persen)
+    // Animasi progress (dalam persen)
     function animateProgress(spanEl, duration, callback) {
       const startTime = Date.now();
       const interval = setInterval(() => {
@@ -207,24 +196,22 @@
         }
       }, 100);
     }
-    // Fungsi untuk menyembunyikan menu aplikasi
+    // Sembunyikan menu aplikasi
     function hideAppMenus() {
       appMenuLeft.style.display = 'none';
       appMenuRight.style.display = 'none';
     }
-    // Fungsi untuk menjalankan perintah dengan status bertahap dan animasi progress
+    // Eksekusi perintah
     function runCommand() {
       const command = (commandInput.innerText || '').trim();
-      if (command === '') return;
-      
-      // Sembunyikan menu aplikasi bila ada perintah baru
+      if (!command) return;
+
       hideAppMenus();
 
-      // Nonaktifkan input saat proses berlangsung
       commandInput.setAttribute("contenteditable", "false");
       inputContainer.classList.add('processing');
 
-      // Jika perintah adalah "--clear", hapus histori dan kembalikan state input
+      // Jika perintah adalah --clear atau --refresh
       if (command === '--clear') {
         commandHistoryContainer.innerHTML = '';
         localStorage.removeItem('commandHistory');
@@ -235,42 +222,41 @@
         commandInput.focus();
         return;
       }
-      // Jika perintah adalah "--refresh", refresh halaman
       if (command === '--refresh') {
         location.reload();
         return;
       }
-      // Membuat container entry untuk perintah dan statusnya
+
+      // Tambahkan entry histori perintah
       const entry = document.createElement('div');
       entry.classList.add('history-entry');
-      // Baris perintah yang dimasukkan
       const commandLine = document.createElement('p');
       commandLine.innerText = command;
       entry.appendChild(commandLine);
-      // Baris status "mencari" dengan animasi progress
+
       const statusSearching = document.createElement('p');
       statusSearching.innerHTML = "mencari <span class='progress'>0%</span>";
       entry.appendChild(statusSearching);
-      // Tambahkan entry ke histori dan simpan ke localStorage
+
       commandHistoryContainer.appendChild(entry);
       commandHistoryContainer.scrollTop = commandHistoryContainer.scrollHeight;
       saveHistory();
-      // Kosongkan textbox dan update caret
+
+      // Kosongkan input
       commandInput.innerText = '';
       updateCaretPosition();
-      // Animasi progres untuk status "mencari" (durasi 1 detik)
+
+      // Animasi progress: mencari -> mendekripsi -> final status
       const progressSpan1 = statusSearching.querySelector('.progress');
       animateProgress(progressSpan1, 1000, () => {
-        // Setelah "mencari" selesai, tambahkan status "mendekripsi"
         const statusDecrypting = document.createElement('p');
         statusDecrypting.innerHTML = "mendekripsi <span class='progress'>0%</span>";
         entry.appendChild(statusDecrypting);
         commandHistoryContainer.scrollTop = commandHistoryContainer.scrollHeight;
         saveHistory();
-        // Animasi progres untuk status "mendekripsi" (durasi 1 detik)
+
         const progressSpan2 = statusDecrypting.querySelector('.progress');
         animateProgress(progressSpan2, 1000, () => {
-          // Setelah kedua animasi selesai, tampilkan status final
           const statusFinal = document.createElement('p');
           if (
             command === '>enkripsi_gambar --open' ||
@@ -291,69 +277,74 @@
           entry.appendChild(statusFinal);
           commandHistoryContainer.scrollTop = commandHistoryContainer.scrollHeight;
           saveHistory();
-          // Setelah status final, kembalikan input ke keadaan aktif dan eksekusi perintah jika dikenali
+
           setTimeout(() => {
             inputContainer.classList.remove('processing');
             commandInput.setAttribute("contenteditable", "true");
-            // Pastikan fokus langsung kembali ke input sehingga pengguna bisa langsung mengetik
             commandInput.focus();
-            // Eksekusi perintah berdasarkan input
-            if (command === '>enkripsi_gambar --open') {
-              window.location.href = 'enkripsi.html';
-            } else if (command === '>pamer_bakat --open') {
-              window.location.href = 'pamer_bakat.html';
-            } else if (command === '>as_database --open') {
-              window.location.href = 'as_database.html';
-            } else if (command === '>enkripsi_kata --open') {
-              window.location.href = 'enkripsi_kata.html';
-            } else if (command === '>tingkatkan_gambar --open') {
-              window.location.href = 'tingkatkan_gambar.html';
-            } else if (command === '>analisis_teks --open') {
-              window.location.href = 'analisis_teks.html';
-            } else if (command === '>html_run --open') {
-              window.location.href = 'html_run.html';
-            } else if (command === '>info') {
-              alert(">enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >html_run --open, >info, >app");
-            } else if (command === '>app') {
-              // Tampilkan menu aplikasi di sisi kiri dan kanan layar, di atas text box
-              appMenuLeft.innerHTML = 
-                "<a href='enkripsi_kata.html'>> enkripsi kata</a>" +
-                "<a href='analisis_teks.html'>> analisis teks</a>";
-              appMenuRight.innerHTML = 
-                "<a href='tingkatkan_gambar.html'>> tingkatkan gambar</a>" +
-                "<a href='html_run.html'>> html run</a>";
-              appMenuLeft.style.display = 'block';
-              appMenuRight.style.display = 'block';
+
+            // Eksekusi perintah yang dikenali
+            switch (command) {
+              case '>enkripsi_gambar --open':
+                window.location.href = 'enkripsi.html';
+                break;
+              case '>pamer_bakat --open':
+                window.location.href = 'pamer_bakat.html';
+                break;
+              case '>as_database --open':
+                window.location.href = 'as_database.html';
+                break;
+              case '>enkripsi_kata --open':
+                window.location.href = 'enkripsi_kata.html';
+                break;
+              case '>tingkatkan_gambar --open':
+                window.location.href = 'tingkatkan_gambar.html';
+                break;
+              case '>analisis_teks --open':
+                window.location.href = 'analisis_teks.html';
+                break;
+              case '>html_run --open':
+                window.location.href = 'html_run.html';
+                break;
+              case '>info':
+                alert(">enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >html_run --open, >info, >app");
+                break;
+              case '>app':
+                // Tampilkan menu aplikasi tanpa simbol ">" atau "<"
+                appMenuLeft.innerHTML = 
+                  "<a href='enkripsi_kata.html'>enkripsi kata</a>" +
+                  "<a href='analisis_teks.html'>analisis teks</a>";
+                appMenuRight.innerHTML = 
+                  "<a href='tingkatkan_gambar.html'>tingkatkan gambar</a>" +
+                  "<a href='html_run.html'>html run</a>";
+                appMenuLeft.style.display = 'block';
+                appMenuRight.style.display = 'block';
+                break;
+              default:
+                break;
             }
           }, 1000);
         });
       });
     }
-    // Jalankan perintah saat menekan Enter
+
+    // Event listener untuk menjalankan perintah saat Enter ditekan
     commandInput.addEventListener('keydown', function (event) {
       if (event.key === 'Enter') {
         event.preventDefault();
         runCommand();
       }
     });
-    // Update posisi kursor saat terjadi perubahan pada teks
     commandInput.addEventListener('input', updateCaretPosition);
     updateCaretPosition();
-    // Setiap kali pengguna mengklik di dalam textbox, posisikan kursor di akhir
-    commandInput.addEventListener('click', function () {
-      setCaretToEnd(commandInput);
-    });
-    // Jika pengguna menggunakan tombol panah untuk mengubah posisi kursor, kembalikan ke akhir
+    commandInput.addEventListener('click', () => setCaretToEnd(commandInput));
     commandInput.addEventListener('keyup', function (event) {
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
         setCaretToEnd(commandInput);
       }
     });
-    // Fokuskan textbox saat pengguna mengklik di mana saja di halaman
     document.addEventListener('click', function (event) {
-      if (event.target !== commandInput) {
-        commandInput.focus();
-      }
+      if (event.target !== commandInput) commandInput.focus();
     });
   </script>
 </body>
