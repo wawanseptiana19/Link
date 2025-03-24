@@ -1,129 +1,244 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisis Teks - Tema Hacker Retro 2</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
-        body {
-            font-family: 'Press Start 2P', cursive;
-            background: radial-gradient(circle, #0a0a0a, #002200);
-        }
-
-        :focus {
-            outline: none;
-        }
-
-        /* Custom styling untuk scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #001100;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #00ff00;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analisis Teks - Layout Vertikal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background: radial-gradient(circle, #0a0a0a, #002200);
+    }
+    :focus {
+      outline: none;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #001100;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #00ff00;
+    }
+  </style>
 </head>
-
 <body class="text-green-500">
-    <div class="max-w-4xl mx-auto px-6 py-10">
-        <h1 class="text-4xl font-bold text-green-300 mb-8 text-center">Analisis Teks</h1>
-
-        <textarea id="textInput"
-            class="w-full px-4 py-3 rounded-lg border border-green-700 bg-black focus:border-green-500 focus:ring-green-500 placeholder-green-700 resize-none"
-            rows="5" placeholder="Ketik atau tempel teks Anda di sini..."></textarea>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
-            <div class="bg-gray-900 p-4 rounded-lg border border-green-700">
-                <div class="text-green-400 text-xs mb-1">Kata</div>
-                <div id="wordCount" class="text-xl font-semibold text-green-300">0</div>
-            </div>
-            <div class="bg-gray-900 p-4 rounded-lg border border-green-700">
-                <div class="text-green-400 text-xs mb-1">Karakter</div>
-                <div id="charCount" class="text-xl font-semibold text-green-300">0</div>
-            </div>
-            <div class="bg-gray-900 p-4 rounded-lg border border-green-700">
-                <div class="text-green-400 text-xs mb-1">Kalimat</div>
-                <div id="sentenceCount" class="text-xl font-semibold text-green-300">0</div>
-            </div>
-            <div class="bg-gray-900 p-4 rounded-lg border border-green-700">
-                <div class="text-green-400 text-xs mb-1">Paragraf</div>
-                <div id="paragraphCount" class="text-xl font-semibold text-green-300">0</div>
-            </div>
-        </div>
-
-        <div class="space-y-6">
-            <div class="bg-gray-900 p-6 rounded-lg border border-green-700">
-                <h2 class="text-xs font-medium text-green-400 mb-4">STATISTIK LANJUTAN</h2>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span>Waktu Baca</span>
-                        <span id="readTime" class="font-medium text-green-300">0 menit</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Kata Terpanjang</span>
-                        <span id="longestWord" class="font-medium text-green-300">-</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Kepadatan Kata Unik</span>
-                        <span id="uniqueWordDensity" class="font-medium text-green-300">0%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gray-900 p-6 rounded-lg border border-green-700">
-                <h2 class="text-xs font-medium text-green-400 mb-4">KATA POPULER</h2>
-                <ul id="topWordsList" class="space-y-2">
-                    <li class="flex justify-between text-green-300">
-                        <span>-</span>
-                        <span>0</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
+  <!-- Header -->
+  <header class="py-6 border-b border-green-700">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-4xl font-bold text-green-300">Analisis Teks</h1>
+      <button id="btnReset" class="bg-red-500 hover:bg-red-600 text-black font-bold py-2 px-4 rounded">
+        Reset
+      </button>
     </div>
+  </header>
 
-    <script>
-        // Script JavaScript untuk analisis teks
-        document.getElementById('textInput').addEventListener('input', function () {
-            const text = this.value;
-            const words = text.match(/\b[-?(\w+)?]+\b/gi) || [];
-            const sentences = text.match(/[^\.!\?]+[\.!\?]+/g) || [];
-            const paragraphs = text.split(/\n\s*\n/).filter(paragraph => paragraph.trim() !== '');
-            const uniqueWords = new Set(words);
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-10 space-y-8">
+    <!-- Area Penulisan -->
+    <section>
+      <div class="bg-gray-900 rounded-lg border border-green-700 shadow-lg p-6">
+        <h2 class="text-green-300 text-xl mb-4">Input Teks</h2>
+        <textarea id="textInput" 
+          class="w-full h-64 p-4 rounded-lg bg-black border border-green-700 text-green-300 placeholder-green-700 focus:border-green-500 focus:ring focus:ring-green-500 transition duration-300" 
+          placeholder="Ketik atau tempel teks di sini..."></textarea>
+      </div>
+    </section>
 
-            document.getElementById('wordCount').innerText = words.length;
-            document.getElementById('charCount').innerText = text.length;
-            document.getElementById('sentenceCount').innerText = sentences.length;
-            document.getElementById('paragraphCount').innerText = paragraphs.length;
-            document.getElementById('readTime').innerText = Math.ceil(words.length / 200) + ' menit';
-            document.getElementById('longestWord').innerText = words.reduce((a, b) => a.length > b.length ? a : b, '') || '-';
-            document.getElementById('uniqueWordDensity').innerText = ((uniqueWords.size / words.length) * 100 || 0).toFixed(2) + '%';
+    <!-- Kartu-kartu Hasil Analisis -->
+    <!-- Statistik Dasar -->
+    <section>
+      <div class="bg-gray-900 rounded-lg border border-green-700 shadow-lg p-6">
+        <h2 class="text-green-300 text-xl mb-4">Statistik Dasar</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-green-400 text-xs">Kata</p>
+            <p id="wordCount" class="text-2xl font-bold">0</p>
+          </div>
+          <div>
+            <p class="text-green-400 text-xs">Karakter</p>
+            <p id="charCount" class="text-2xl font-bold">0</p>
+          </div>
+          <div>
+            <p class="text-green-400 text-xs">Kalimat</p>
+            <p id="sentenceCount" class="text-2xl font-bold">0</p>
+          </div>
+          <div>
+            <p class="text-green-400 text-xs">Paragraf</p>
+            <p id="paragraphCount" class="text-2xl font-bold">0</p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <p class="text-green-400 text-xs">Waktu Baca</p>
+          <p id="readTime" class="text-lg font-semibold">0 menit</p>
+        </div>
+      </div>
+    </section>
 
-            const wordFrequency = {};
-            words.forEach(word => {
-                wordFrequency[word] = (wordFrequency[word] || 0) + 1;
-            });
+    <!-- Statistik Lanjutan -->
+    <section>
+      <div class="bg-gray-900 rounded-lg border border-green-700 shadow-lg p-6">
+        <h2 class="text-green-300 text-xl mb-4">Statistik Lanjutan</h2>
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span class="text-green-400 text-xs">Kata Terpanjang</span>
+            <span id="longestWord" class="text-green-300">-</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-green-400 text-xs">Kepadatan Kata Unik</span>
+            <span id="uniqueWordDensity" class="text-green-300">0%</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-green-400 text-xs">Rata-rata Panjang Kata</span>
+            <span id="avgWordLength" class="text-green-300">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-green-400 text-xs">Rata-rata Panjang Kalimat (kata)</span>
+            <span id="avgSentenceLength" class="text-green-300">0</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            const sortedWords = Object.keys(wordFrequency).sort((a, b) => wordFrequency[b] - wordFrequency[a]);
-            const topWordsList = document.getElementById('topWordsList');
-            topWordsList.innerHTML = '';
-            sortedWords.slice(0, 15).forEach(word => {
-                const li = document.createElement('li');
-                li.className = 'flex justify-between text-green-300';
-                li.innerHTML = `<span>${word}</span><span>${wordFrequency[word]}</span>`;
-                topWordsList.appendChild(li);
-            });
-        });
-    </script>
+    <!-- Kata Populer -->
+    <section>
+      <div class="bg-gray-900 rounded-lg border border-green-700 shadow-lg p-6">
+        <h2 class="text-green-300 text-xl mb-4">Kata Populer</h2>
+        <input id="searchWord" type="text" placeholder="Cari kata..." 
+          class="mb-4 w-full p-2 rounded bg-black border border-green-700 placeholder-green-700 text-green-300 focus:border-green-500 focus:ring focus:ring-green-500 transition duration-200">
+        <div id="popularWordsContainer" class="overflow-y-auto h-48">
+          <ul id="topWordsList" class="space-y-2">
+            <!-- Daftar kata populer akan muncul di sini -->
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tombol Unduh Laporan -->
+    <section>
+      <div class="bg-gray-900 rounded-lg border border-green-700 shadow-lg p-6 flex justify-center">
+        <button id="downloadReport" 
+          class="bg-green-500 hover:bg-green-600 text-black font-bold py-2 px-4 rounded w-full">
+          Unduh Laporan
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-4 border-t border-green-700">
+    <div class="container mx-auto px-4 text-center text-green-500 text-xs">
+      &copy; 2025 - Analisis Teks | Tema Hacker Retro
+    </div>
+  </footer>
+
+  <!-- Script JavaScript -->
+  <script>
+    let allSortedWords = [];
+    let wordFrequency = {};
+
+    // Fungsi untuk menghitung rata-rata panjang kata
+    function calculateAvgWordLength(words) {
+      if (words.length === 0) return 0;
+      const totalLength = words.reduce((sum, word) => sum + word.length, 0);
+      return (totalLength / words.length).toFixed(2);
+    }
+
+    // Fungsi untuk menghitung rata-rata panjang kalimat (dalam kata)
+    function calculateAvgSentenceLength(sentences) {
+      if (sentences.length === 0) return 0;
+      const totalWordsInSentences = sentences.reduce((sum, sentence) => {
+        const wordCount = (sentence.match(/\b[-?(\w+)?]+\b/gi) || []).length;
+        return sum + wordCount;
+      }, 0);
+      return (totalWordsInSentences / sentences.length).toFixed(2);
+    }
+
+    // Fungsi untuk memperbarui daftar kata populer sesuai filter pencarian
+    function updatePopularWords(filter = "") {
+      const topWordsList = document.getElementById('topWordsList');
+      topWordsList.innerHTML = "";
+      const filteredWords = allSortedWords.filter(word => word.includes(filter.toLowerCase()));
+      filteredWords.forEach(word => {
+        const li = document.createElement('li');
+        li.className = 'flex justify-between text-green-300';
+        li.innerHTML = `<span>${word}</span><span>${wordFrequency[word]}</span>`;
+        topWordsList.appendChild(li);
+      });
+    }
+
+    // Fungsi utama analisis teks
+    function analyzeText() {
+      const text = document.getElementById('textInput').value;
+      const words = text.match(/\b[-?(\w+)?]+\b/gi) || [];
+      const sentences = text.match(/[^\.!\?]+[\.!\?]+/g) || [];
+      const paragraphs = text.split(/\n\s*\n/).filter(paragraph => paragraph.trim() !== '');
+      const uniqueWords = new Set(words);
+
+      document.getElementById('wordCount').innerText = words.length;
+      document.getElementById('charCount').innerText = text.length;
+      document.getElementById('sentenceCount').innerText = sentences.length;
+      document.getElementById('paragraphCount').innerText = paragraphs.length;
+      document.getElementById('readTime').innerText = Math.ceil(words.length / 200) + ' menit';
+
+      document.getElementById('longestWord').innerText = words.reduce((a, b) => a.length > b.length ? a : b, '') || '-';
+      document.getElementById('uniqueWordDensity').innerText = ((uniqueWords.size / words.length) * 100 || 0).toFixed(2) + '%';
+      document.getElementById('avgWordLength').innerText = calculateAvgWordLength(words);
+      document.getElementById('avgSentenceLength').innerText = calculateAvgSentenceLength(sentences);
+
+      wordFrequency = {};
+      words.forEach(word => {
+        const lowerWord = word.toLowerCase();
+        wordFrequency[lowerWord] = (wordFrequency[lowerWord] || 0) + 1;
+      });
+      allSortedWords = Object.keys(wordFrequency).sort((a, b) => wordFrequency[b] - wordFrequency[a]);
+      updatePopularWords(document.getElementById('searchWord').value);
+    }
+
+    // Event listener untuk memperbarui analisis saat teks diinput
+    document.getElementById('textInput').addEventListener('input', analyzeText);
+    document.getElementById('searchWord').addEventListener('input', function() {
+      updatePopularWords(this.value);
+    });
+
+    // Fungsi untuk mengunduh laporan analisis dalam format JSON
+    document.getElementById('downloadReport').addEventListener('click', function () {
+      const text = document.getElementById('textInput').value;
+      const words = text.match(/\b[-?(\w+)?]+\b/gi) || [];
+      const sentences = text.match(/[^\.!\?]+[\.!\?]+/g) || [];
+      const paragraphs = text.split(/\n\s*\n/).filter(paragraph => paragraph.trim() !== '');
+      const uniqueWords = new Set(words);
+
+      const report = {
+        wordCount: words.length,
+        charCount: text.length,
+        sentenceCount: sentences.length,
+        paragraphCount: paragraphs.length,
+        readTime: Math.ceil(words.length / 200) + ' menit',
+        longestWord: words.reduce((a, b) => a.length > b.length ? a : b, '') || '-',
+        uniqueWordDensity: ((uniqueWords.size / words.length) * 100 || 0).toFixed(2) + '%',
+        avgWordLength: calculateAvgWordLength(words),
+        avgSentenceLength: calculateAvgSentenceLength(sentences)
+      };
+
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'laporan-analisis.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Tombol Reset untuk mengosongkan input dan analisis
+    document.getElementById('btnReset').addEventListener('click', function () {
+      document.getElementById('textInput').value = '';
+      analyzeText();
+    });
+  </script>
 </body>
-
 </html>
