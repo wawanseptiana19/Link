@@ -14,6 +14,7 @@
       margin: 0;
       padding: 0;
       height: 100vh;
+      overflow: hidden;
     }
     .container {
       max-width: 800px;
@@ -103,9 +104,39 @@
       font-size: 1rem;
       font-family: inherit;
     }
+    /* Styling untuk menu aplikasi (ATM-like) di atas text box */
+    .app-menu {
+      position: fixed;
+      top: 20px; /* menu berada di atas layar */
+      width: 150px;
+      display: none;
+    }
+    .app-menu-left {
+      left: 0;
+      text-align: left;
+      padding-left: 1rem;
+    }
+    .app-menu-right {
+      right: 0;
+      text-align: right;
+      padding-right: 1rem;
+    }
+    .app-menu a {
+      display: block;
+      margin-bottom: 1rem;
+      color: #39FF14;
+      text-decoration: none;
+    }
+    .app-menu a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+  <!-- Menu aplikasi di sisi kiri dan kanan layar (posisi atas) -->
+  <div id="appMenuLeft" class="app-menu app-menu-left"></div>
+  <div id="appMenuRight" class="app-menu app-menu-right"></div>
+
   <div class="container">
     <!-- Histori perintah ditampilkan di sini -->
     <div id="commandHistory" class="history-container"></div>
@@ -117,16 +148,16 @@
       <!-- Elemen mirror untuk mengukur lebar teks -->
       <span id="mirror" class="mirror"></span>
     </div>
-    <p id="infoMsg" class="info-message"></p>
   </div>
 
   <script>
     const commandInput = document.getElementById('commandInput');
     const customCaret = document.getElementById('customCaret');
     const mirror = document.getElementById('mirror');
-    const infoMsg = document.getElementById('infoMsg');
     const commandHistoryContainer = document.getElementById('commandHistory');
     const inputContainer = document.getElementById('inputContainer');
+    const appMenuLeft = document.getElementById('appMenuLeft');
+    const appMenuRight = document.getElementById('appMenuRight');
 
     // Fungsi untuk menyimpan histori ke localStorage
     function saveHistory() {
@@ -176,11 +207,19 @@
         }
       }, 100);
     }
+    // Fungsi untuk menyembunyikan menu aplikasi
+    function hideAppMenus() {
+      appMenuLeft.style.display = 'none';
+      appMenuRight.style.display = 'none';
+    }
     // Fungsi untuk menjalankan perintah dengan status bertahap dan animasi progress
     function runCommand() {
       const command = (commandInput.innerText || '').trim();
       if (command === '') return;
       
+      // Sembunyikan menu aplikasi bila ada perintah baru
+      hideAppMenus();
+
       // Nonaktifkan input saat proses berlangsung
       commandInput.setAttribute("contenteditable", "false");
       inputContainer.classList.add('processing');
@@ -193,6 +232,7 @@
         updateCaretPosition();
         inputContainer.classList.remove('processing');
         commandInput.setAttribute("contenteditable", "true");
+        commandInput.focus();
         return;
       }
       // Jika perintah adalah "--refresh", refresh halaman
@@ -218,18 +258,18 @@
       // Kosongkan textbox dan update caret
       commandInput.innerText = '';
       updateCaretPosition();
-      // Animasi progres untuk status "mencari"
+      // Animasi progres untuk status "mencari" (durasi 1 detik)
       const progressSpan1 = statusSearching.querySelector('.progress');
-      animateProgress(progressSpan1, 3000, () => {
+      animateProgress(progressSpan1, 1000, () => {
         // Setelah "mencari" selesai, tambahkan status "mendekripsi"
         const statusDecrypting = document.createElement('p');
         statusDecrypting.innerHTML = "mendekripsi <span class='progress'>0%</span>";
         entry.appendChild(statusDecrypting);
         commandHistoryContainer.scrollTop = commandHistoryContainer.scrollHeight;
         saveHistory();
-        // Animasi progres untuk status "mendekripsi"
+        // Animasi progres untuk status "mendekripsi" (durasi 1 detik)
         const progressSpan2 = statusDecrypting.querySelector('.progress');
-        animateProgress(progressSpan2, 3000, () => {
+        animateProgress(progressSpan2, 1000, () => {
           // Setelah kedua animasi selesai, tampilkan status final
           const statusFinal = document.createElement('p');
           if (
@@ -239,8 +279,9 @@
             command === '>enkripsi_kata --open' ||
             command === '>tingkatkan_gambar --open' ||
             command === '>analisis_teks --open' ||
-            command === '>html_run --open' ||  // Tambahan agar html_run juga sukses
-            command === '>info'
+            command === '>html_run --open' ||
+            command === '>info' ||
+            command === '>app'
           ) {
             statusFinal.innerText = "sukses";
           } else {
@@ -254,6 +295,9 @@
           setTimeout(() => {
             inputContainer.classList.remove('processing');
             commandInput.setAttribute("contenteditable", "true");
+            // Pastikan fokus langsung kembali ke input sehingga pengguna bisa langsung mengetik
+            commandInput.focus();
+            // Eksekusi perintah berdasarkan input
             if (command === '>enkripsi_gambar --open') {
               window.location.href = 'enkripsi.html';
             } else if (command === '>pamer_bakat --open') {
@@ -269,10 +313,19 @@
             } else if (command === '>html_run --open') {
               window.location.href = 'html_run.html';
             } else if (command === '>info') {
-              infoMsg.style.display = 'block';
-              infoMsg.innerText = " >enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >html_run --open, >info";
+              alert(">enkripsi_gambar --open, >enkripsi_kata --open, >pamer_bakat --open, >as_database --open, >html_run --open, >info, >app");
+            } else if (command === '>app') {
+              // Tampilkan menu aplikasi di sisi kiri dan kanan layar, di atas text box
+              appMenuLeft.innerHTML = 
+                "<a href='enkripsi_kata.html'>> enkripsi kata</a>" +
+                "<a href='analisis_teks.html'>> analisis teks</a>";
+              appMenuRight.innerHTML = 
+                "<a href='tingkatkan_gambar.html'>> tingkatkan gambar</a>" +
+                "<a href='html_run.html'>> html run</a>";
+              appMenuLeft.style.display = 'block';
+              appMenuRight.style.display = 'block';
             }
-          }, 3000);
+          }, 1000);
         });
       });
     }
