@@ -64,6 +64,7 @@
     <div class="mt-3 d-flex gap-2 flex-wrap">
       <button class="btn btn-primary flex-fill" onclick="runCode()">Jalankan Kode</button>
       <button class="btn btn-success flex-fill" onclick="downloadCode()">Download Kode</button>
+      <button class="btn btn-warning flex-fill" onclick="openFullScreen()">Full Screen</button>
       <button class="btn btn-danger flex-fill" onclick="resetCode()">Reset Editor</button>
     </div>
 
@@ -106,7 +107,7 @@
       autoCloseBrackets: true
     });
     
-    // Fungsi untuk menjalankan kode
+    // Fungsi untuk menjalankan kode pada iframe preview
     function runCode() {
       var htmlContent = htmlEditor.getValue();
       var cssContent = "<style>" + cssEditor.getValue() + "</style>";
@@ -117,7 +118,7 @@
       previewFrame.srcdoc = combinedCode;
     }
     
-    // Fungsi untuk mengunduh kode
+    // Fungsi untuk mengunduh kode sebagai file HTML
     function downloadCode() {
       var htmlContent = htmlEditor.getValue();
       var cssContent = "<style>" + cssEditor.getValue() + "</style>";
@@ -132,7 +133,20 @@
       document.body.removeChild(a);
     }
     
-    // Fungsi untuk mereset editor
+    // Fungsi untuk membuka kode dalam tab baru (Full Screen)
+    function openFullScreen() {
+      var htmlContent = htmlEditor.getValue();
+      var cssContent = "<style>" + cssEditor.getValue() + "</style>";
+      var jsContent = "<script>" + jsEditor.getValue() + "<\/script>";
+      var combinedCode = htmlContent + cssContent + jsContent;
+      
+      var newWindow = window.open();
+      newWindow.document.open();
+      newWindow.document.write(combinedCode);
+      newWindow.document.close();
+    }
+    
+    // Fungsi untuk mereset editor dan preview
     function resetCode() {
       htmlEditor.setValue("");
       cssEditor.setValue("");
