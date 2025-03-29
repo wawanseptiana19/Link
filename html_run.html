@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Advanced HTML Runner</title>
+  <title>Advanced HTML Runner - Versi Canggih</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- CodeMirror CSS -->
@@ -32,8 +32,8 @@
   <div class="container">
     <!-- Header -->
     <div class="mb-4 text-center">
-      <h1>Advanced HTML Runner</h1>
-      <p>Editor canggih dengan tampilan modern. Tulis kode HTML, CSS, dan JavaScript di bawah ini dan lihat hasilnya secara langsung.</p>
+      <h1>Advanced HTML Runner - Versi Canggih</h1>
+      <p>Editor canggih dengan preview real-time, autosave, dan full screen preview.</p>
     </div>
 
     <!-- Editor Tab -->
@@ -64,8 +64,9 @@
     <div class="mt-3 d-flex gap-2 flex-wrap">
       <button class="btn btn-primary flex-fill" onclick="runCode()">Jalankan Kode</button>
       <button class="btn btn-success flex-fill" onclick="downloadCode()">Download Kode</button>
-      <button class="btn btn-warning flex-fill" onclick="openFullScreen()">Full Screen</button>
-      <button class="btn btn-danger flex-fill" onclick="resetCode()">Reset Editor</button>
+      <button class="btn btn-info flex-fill" onclick="toggleFullScreen()">Full Screen Preview</button>
+      <button class="btn btn-warning flex-fill" onclick="resetCode()">Reset Editor</button>
+      <button class="btn btn-secondary flex-fill" onclick="clearAutosave()">Hapus Autosave</button>
     </div>
 
     <!-- Preview Panel -->
@@ -106,18 +107,32 @@
       lineNumbers: true,
       autoCloseBrackets: true
     });
-    
+
+    // Fungsi debounce untuk auto-run
+    function debounce(func, delay) {
+      let timer;
+      return function() {
+        clearTimeout(timer);
+        timer = setTimeout(() => func.apply(this, arguments), delay);
+      }
+    }
+
     // Fungsi untuk menjalankan kode pada iframe preview
     function runCode() {
       var htmlContent = htmlEditor.getValue();
       var cssContent = "<style>" + cssEditor.getValue() + "</style>";
       var jsContent = "<script>" + jsEditor.getValue() + "<\/script>";
       var combinedCode = htmlContent + cssContent + jsContent;
-      
-      var previewFrame = document.getElementById("preview");
-      previewFrame.srcdoc = combinedCode;
+      document.getElementById("preview").srcdoc = combinedCode;
+      autosaveCode();
     }
-    
+
+    // Auto-run saat pengguna mengetik (debounced)
+    var debouncedRun = debounce(runCode, 500);
+    htmlEditor.on("change", debouncedRun);
+    cssEditor.on("change", debouncedRun);
+    jsEditor.on("change", debouncedRun);
+
     // Fungsi untuk mengunduh kode sebagai file HTML
     function downloadCode() {
       var htmlContent = htmlEditor.getValue();
@@ -133,26 +148,65 @@
       document.body.removeChild(a);
     }
     
-    // Fungsi untuk membuka kode dalam tab baru (Full Screen)
-    function openFullScreen() {
-      var htmlContent = htmlEditor.getValue();
-      var cssContent = "<style>" + cssEditor.getValue() + "</style>";
-      var jsContent = "<script>" + jsEditor.getValue() + "<\/script>";
-      var combinedCode = htmlContent + cssContent + jsContent;
-      
-      var newWindow = window.open();
-      newWindow.document.open();
-      newWindow.document.write(combinedCode);
-      newWindow.document.close();
+    // Fungsi untuk toggle full screen preview menggunakan Fullscreen API
+    function toggleFullScreen() {
+      var previewElement = document.getElementById("preview");
+      if (!document.fullscreenElement) {
+        previewElement.requestFullscreen().catch(err => {
+          alert("Error, tidak dapat masuk full screen: " + err.message);
+        });
+      } else {
+        document.exitFullscreen();
+      }
     }
     
     // Fungsi untuk mereset editor dan preview
     function resetCode() {
-      htmlEditor.setValue("");
-      cssEditor.setValue("");
-      jsEditor.setValue("");
-      document.getElementById("preview").srcdoc = "";
+      if(confirm("Apakah Anda yakin ingin mereset editor? Kode yang ada akan dihapus.")) {
+        htmlEditor.setValue("");
+        cssEditor.setValue("");
+        jsEditor.setValue("");
+        document.getElementById("preview").srcdoc = "";
+        autosaveCode(); // update localStorage
+      }
     }
+    
+    // Fungsi autosave menggunakan localStorage
+    function autosaveCode() {
+      const codeData = {
+        html: htmlEditor.getValue(),
+        css: cssEditor.getValue(),
+        js: jsEditor.getValue()
+      };
+      localStorage.setItem("advancedHtmlRunnerCode", JSON.stringify(codeData));
+    }
+    
+    // Fungsi untuk memuat kode dari localStorage
+    function loadAutosave() {
+      const saved = localStorage.getItem("advancedHtmlRunnerCode");
+      if (saved) {
+        try {
+          const codeData = JSON.parse(saved);
+          htmlEditor.setValue(codeData.html || "");
+          cssEditor.setValue(codeData.css || "");
+          jsEditor.setValue(codeData.js || "");
+          runCode();
+        } catch(e) {
+          console.error("Gagal memuat autosave:", e);
+        }
+      }
+    }
+    
+    // Fungsi untuk menghapus data autosave
+    function clearAutosave() {
+      if(confirm("Hapus data autosave?")) {
+        localStorage.removeItem("advancedHtmlRunnerCode");
+        alert("Autosave telah dihapus.");
+      }
+    }
+    
+    // Muat data autosave saat halaman dimuat
+    window.addEventListener("load", loadAutosave);
   </script>
 </body>
 </html>
