@@ -41,13 +41,6 @@
     #consoleInput {
       margin-top: 5px;
     }
-    #toolsLink {
-      margin-top: 10px;
-      display: inline-block;
-      cursor: pointer;
-      color: #0d6efd;
-      text-decoration: underline;
-    }
   </style>
 </head>
 <body>
@@ -109,14 +102,14 @@
       <div class="col-md-8">
         <h4>Preview</h4>
         <iframe id="preview" title="Preview Output"></iframe>
+        <!-- Tombol Buka di Tab Baru -->
+        <button class="btn btn-primary mt-2" onclick="openInNewTab()">Buka di tab baru</button>
       </div>
       <div class="col-md-4">
         <h4>Console</h4>
         <div id="console"></div>
         <!-- Input untuk mengetik perintah di console -->
         <input type="text" id="consoleInput" class="form-control" placeholder="Ketik perintah di sini...">
-        <!-- Tempat untuk menampilkan link tools jika perintah '--tools' terdeteksi -->
-        <div id="toolsContainer"></div>
       </div>
     </div>
   </div>
@@ -313,13 +306,6 @@
       jsEditor.setOption("theme", theme);
     }
     
-    // Mendengarkan pesan dari iframe (console error)
-    window.addEventListener("message", function(event) {
-      if (event.data.type === 'console') {
-        logConsole(event.data.message);
-      }
-    }, false);
-    
     // Fungsi untuk memuat file tools dari URL ke editor HTML
     function loadTools() {
       const url = "https://raw.githubusercontent.com/wawanseptiana19/Tools/refs/heads/main/Menyembunyikan%20dan%20Memunculkan%20File%20Media%20Video%2C%20Audio%2C%20Gambar.txt";
@@ -331,10 +317,10 @@
         .then(text => {
           htmlEditor.setValue(text);
           runCode();
-          alert("Kode tools berhasil dimuat ke editor HTML.");
+          logConsole("Kode tools berhasil dimuat ke editor HTML.");
         })
         .catch(err => {
-          alert("Error: " + err.message);
+          logConsole("Error: " + err.message);
         });
     }
     
@@ -342,25 +328,23 @@
     document.getElementById("consoleInput").addEventListener("keydown", function(e) {
       if (e.key === "Enter") {
         const command = e.target.value.trim();
-        // Jika perintah '--tools' terdeteksi
-        if (command === "--tools") {
-          // Tampilkan link tools jika belum ada
-          if (!document.getElementById("toolsLink")) {
-            const toolsContainer = document.getElementById("toolsContainer");
-            const link = document.createElement("div");
-            link.id = "toolsLink";
-            link.textContent = "Menyembunyikan dan Memunculkan File Media Video, Audio, Gambar";
-            link.addEventListener("click", loadTools);
-            toolsContainer.appendChild(link);
-          }
-          logConsole("Perintah '--tools' terdeteksi. Klik link yang muncul untuk memuat tools.");
+        if (command === "--e1") {
+          logConsole("Perintah '--e1' terdeteksi. Memuat tools...");
+          loadTools(); // Langsung panggil fungsi loadTools tanpa menampilkan tombol
         } else {
           logConsole("Perintah tidak dikenal: " + command);
         }
-        // Bersihkan input
         e.target.value = "";
       }
     });
+    
+    // Fungsi untuk membuka preview di tab baru
+    function openInNewTab() {
+      var content = document.getElementById("preview").srcdoc;
+      var newTab = window.open();
+      newTab.document.write(content);
+      newTab.document.close();
+    }
     
     // Muat autosave saat halaman dimuat
     window.addEventListener("load", loadAutosave);
