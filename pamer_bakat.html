@@ -6,13 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pamer Bakat</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
+        /* Gunakan font klasik seperti Courier New atau Courier Prime */
         body {
-            font-family: 'Press Start 2P', 'Courier New', monospace;
-            background-color: #000;
-            color: #39FF14;
+            font-family: 'Courier Prime', 'Courier New', monospace;
+            background-color: #C0C0C0; /* Background abu-abu */
+            color: #333; /* Warna teks gelap */
             margin: 0;
             padding: 0;
         }
@@ -25,19 +26,18 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(192, 192, 192, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(4px);
         }
 
         #passwordModal h1 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
-            color: #39FF14;
-            text-shadow: 0 0 8px rgba(57, 255, 20, 0.8);
+            color: #333;
         }
 
         /* Sembunyikan input file asli */
@@ -48,45 +48,41 @@
         /* Gaya tombol custom untuk file input */
         .custom-file-label {
             padding: 0.75rem 1.5rem;
-            background-color: #111;
-            border: 2px solid #39FF14;
+            background-color: #DDD;
+            border: 2px solid #333;
             border-radius: 0.5rem;
-            color: #39FF14;
+            color: #333;
             cursor: pointer;
             display: inline-block;
             transition: background-color 0.3s ease, transform 0.2s ease;
             margin-bottom: 1.5rem;
             font-size: 0.8rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
         }
 
         .custom-file-label:hover {
-            background-color: #222;
+            background-color: #CCC;
             transform: scale(1.05);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.8);
         }
 
         #passwordModal button {
             padding: 0.75rem 1.5rem;
-            background-color: #111;
-            border: 2px solid #39FF14;
+            background-color: #DDD;
+            border: 2px solid #333;
             border-radius: 0.5rem;
-            color: #39FF14;
+            color: #333;
             cursor: pointer;
             margin-top: 1rem;
             font-size: 0.8rem;
             transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
         }
 
         #passwordModal button:hover {
-            background-color: #222;
+            background-color: #CCC;
             transform: scale(1.05);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.8);
         }
 
         #passwordModal p {
-            color: #FF4500;
+            color: #800000;
             margin-top: 1.5rem;
             font-size: 0.9rem;
             animation: pulse 2s infinite;
@@ -113,10 +109,10 @@
 
         /* Styling konten utama dan komponen lainnya */
         .card {
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: #E0E0E0;
             padding: 2rem;
             border-radius: 0.75rem;
-            box-shadow: 0 0 20px #39FF14;
+            box-shadow: 0 0 20px #AAA;
             max-width: 600px;
             margin: 2rem auto;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -124,15 +120,15 @@
 
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 25px #39FF14;
+            box-shadow: 0 4px 25px #999;
         }
 
         .btn-action {
             margin-top: 1.5rem;
             padding: 0.75rem 1.5rem;
-            background-color: #111;
-            color: #39FF14;
-            border: 2px solid #39FF14;
+            background-color: #DDD;
+            color: #333;
+            border: 2px solid #333;
             border-radius: 0.5rem;
             transition: background-color 0.3s ease, transform 0.2s ease;
             cursor: pointer;
@@ -140,13 +136,11 @@
             width: 100%;
             display: block;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
         }
 
         .btn-action:hover {
-            background-color: #222;
+            background-color: #CCC;
             transform: scale(1.05);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.8);
         }
 
         .hidden {
@@ -160,26 +154,24 @@
         .form-input {
             width: 100%;
             padding: 0.75rem;
-            border: 2px solid #39FF14;
+            border: 2px solid #333;
             border-radius: 0.5rem;
-            background-color: #000;
-            color: #39FF14;
+            background-color: #FFF;
+            color: #333;
             font-size: 0.9rem;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: border-color 0.2s ease;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #4aff0b;
-            box-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
+            border-color: #666;
         }
 
         .form-label {
             margin-bottom: 0.75rem;
             display: block;
             font-size: 0.9rem;
-            color: #39FF14;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            color: #333;
         }
 
         /* Tombol tambah (+) di kanan bawah */
@@ -189,24 +181,22 @@
             right: 25px;
             z-index: 1000;
             font-size: 2rem;
-            background-color: #111;
-            border: 3px solid #39FF14;
+            background-color: #DDD;
+            border: 3px solid #333;
             border-radius: 50%;
             width: 60px;
             height: 60px;
-            color: #39FF14;
+            color: #333;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 5px 8px rgba(0, 0, 0, 0.7);
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         #btnShowForm:hover {
-            background-color: #222;
+            background-color: #CCC;
             transform: scale(1.1);
-            box-shadow: 0 7px 10px rgba(0, 0, 0, 0.9);
         }
 
         /* Tombol enkripsi gambar di kiri bawah */
@@ -216,24 +206,22 @@
             left: 25px;
             z-index: 1000;
             font-size: 2rem;
-            background-color: #111;
-            border: 3px solid #39FF14;
+            background-color: #DDD;
+            border: 3px solid #333;
             border-radius: 50%;
             width: 60px;
             height: 60px;
-            color: #39FF14;
+            color: #333;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 5px 8px rgba(0, 0, 0, 0.7);
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         #btnShowEncrypt:hover {
-            background-color: #222;
+            background-color: #CCC;
             transform: scale(1.1);
-            box-shadow: 0 7px 10px rgba(0, 0, 0, 0.9);
         }
 
         /* Modal Popup untuk Form Tambah Link dan Enkripsi Gambar */
@@ -246,19 +234,19 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(12px);
+            background-color: rgba(128, 128, 128, 0.8);
+            backdrop-filter: blur(4px);
         }
 
         .modal-content {
-            background-color: #111;
+            background-color: #DDD;
             margin: 5% auto;
             padding: 2rem;
             width: 95%;
             max-width: 600px;
             border-radius: 1rem;
-            box-shadow: 0 6px 15px rgba(57, 255, 20, 0.7);
-            color: #39FF14;
+            box-shadow: 0 6px 15px rgba(100, 100, 100, 0.7);
+            color: #333;
             animation: fadeIn 0.5s ease, scaleIn 0.5s ease;
             transform-origin: center;
         }
@@ -284,18 +272,17 @@
         }
 
         .close {
-            color: #39FF14;
+            color: #333;
             float: right;
             font-size: 3rem;
             font-weight: bold;
             cursor: pointer;
             transition: color 0.2s ease, transform 0.2s ease;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
         }
 
         .close:hover,
         .close:focus {
-            color: #32e10f;
+            color: #666;
             transform: scale(1.2);
         }
 
@@ -311,37 +298,33 @@
         .search-input {
             flex: 1;
             padding: 0.75rem;
-            border: 2px solid #39FF14;
+            border: 2px solid #333;
             border-radius: 0.5rem;
-            background-color: #000;
-            color: #39FF14;
+            background-color: #FFF;
+            color: #333;
             font-size: 0.9rem;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: border-color 0.2s ease;
             outline: none;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .search-input:focus {
-            border-color: #4aff0b;
-            box-shadow: 0 0 5px rgba(57, 255, 20, 0.5), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            border-color: #666;
         }
 
         .btn-search {
             padding: 0.75rem 1.5rem;
-            background-color: #111;
-            color: #39FF14;
-            border: 2px solid #39FF14;
+            background-color: #DDD;
+            color: #333;
+            border: 2px solid #333;
             border-radius: 0.5rem;
             cursor: pointer;
             font-size: 0.8rem;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         .btn-search:hover {
-            background-color: #222;
+            background-color: #CCC;
             transform: scale(1.05);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.8);
         }
 
         /* Container tampilan link */
@@ -354,47 +337,43 @@
         }
 
         .link-item {
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: #E0E0E0;
             padding: 1.5rem;
             border-radius: 0.75rem;
-            border: 2px solid #39FF14;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            border: 2px solid #333;
+            transition: background-color 0.3s ease, transform 0.2s ease;
             position: relative;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 8px rgba(100, 100, 100, 0.5);
         }
 
         .link-item:hover {
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: #D3D3D3;
             transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7);
         }
 
         .person-name {
             font-size: 0.8rem;
             text-transform: uppercase;
-            font-style: normal;
-            color: #32e10f;
+            color: #333;
             margin-bottom: 0.5rem;
             letter-spacing: 1px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
         }
 
         .link-title {
             font-size: 1.1rem;
             font-weight: bold;
             margin-bottom: 0.75rem;
-            background-color: #111;
+            background-color: #CCC;
             padding: 0.3rem 0.6rem;
             border-radius: 0.375rem;
             display: inline-block;
-            color: #39FF14;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            color: #333;
         }
 
         .link-details {
             font-size: 0.9rem;
             margin: 0.2rem 0;
-            color: #39FF14;
+            color: #333;
         }
 
         .link-url {
@@ -404,20 +383,19 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             vertical-align: middle;
-            color: #4aff0b;
+            color: #555;
             text-decoration: none;
-            transition: color 0.2s ease, text-shadow 0.2s ease;
+            transition: color 0.2s ease;
         }
 
         .link-url:hover {
-            color: #66ff33;
+            color: #777;
             text-decoration: underline;
-            text-shadow: 0 0 3px rgba(74, 255, 11, 0.5);
         }
 
         a {
             text-decoration: none;
-            color: #39FF14;
+            color: #333;
         }
 
         a:hover {
@@ -429,38 +407,36 @@
         .btn-download,
         .btn-delete {
             padding: 0.5rem 1rem;
-            margin: 0.3rem 0.3rem 0.3rem 0;
-            background-color: #111;
-            border: 2px solid #39FF14;
+            margin: 0.3rem;
+            background-color: #DDD;
+            border: 2px solid #333;
             border-radius: 0.5rem;
-            color: #39FF14;
+            color: #333;
             cursor: pointer;
             font-size: 0.7rem;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         .btn-copy:hover,
         .btn-decrypt:hover,
         .btn-download:hover,
         .btn-delete:hover {
-            background-color: #222;
+            background-color: #CCC;
             transform: scale(1.05);
-            box-shadow: 0 5px 7px rgba(0, 0, 0, 0.7);
         }
 
         .decrypted-container {
             margin-top: 1rem;
             padding: 1rem;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: #FFF;
             border-radius: 0.5rem;
-            border: 1px solid #39FF14;
+            border: 1px solid #333;
         }
 
         .progress-bar {
             width: 100%;
-            background-color: #222;
-            border: 2px solid #39FF14;
+            background-color: #CCC;
+            border: 2px solid #333;
             border-radius: 0.5rem;
             overflow: hidden;
             margin-top: 0.75rem;
@@ -469,7 +445,7 @@
 
         .progress-bar-fill {
             height: 100%;
-            background-color: #39FF14;
+            background-color: #333;
             width: 0%;
             animation: loadingAnimation 3s forwards;
             border-radius: 0.25rem;
@@ -548,8 +524,6 @@
                 font-size: 1.5rem;
                 width: 50px;
                 height: 50px;
-                bottom: 20px;
-                right: 20px;
             }
         }
     </style>
@@ -562,6 +536,7 @@
             <i class="fas fa-file"></i> Choose File
         </label>
         <input type="file" id="passwordFile" accept=".bat">
+        <!-- Tombol Enter sebagai cadangan -->
         <button id="btnSubmitPassword"><i class="fas fa-upload"></i> Enter</button>
         <p id="passwordError" class="hidden">Incorrect password. Please try again.</p>
     </div>
@@ -582,7 +557,7 @@
         <div id="modalForm" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h1 class="text-3xl font-bold mb-6">Add New Link</h1>
+                <h1>Add New Link</h1>
                 <form id="linkForm">
                     <div class="form-group">
                         <label for="personName" class="form-label">Person Name</label>
@@ -602,14 +577,14 @@
                     </div>
                     <button type="submit" class="btn-action"><i class="fas fa-save"></i> Save Link</button>
                 </form>
-                <div id="notification" class="mt-6 p-4 border border-green-500 rounded bg-black text-green-400 hidden"></div>
+                <div id="notification" class="hidden"></div>
             </div>
         </div>
 
         <div id="modalEncrypt" class="modal">
             <div class="modal-content">
                 <span class="close" id="closeEncryptModal">&times;</span>
-                <h1 class="text-3xl font-bold mb-6">Encrypt Image</h1>
+                <h1>Encrypt Image</h1>
                 <form id="encryptForm">
                     <div class="form-group">
                         <label for="imageInput" class="form-label">Choose Image</label>
@@ -621,10 +596,10 @@
                     </div>
                     <button type="submit" class="btn-action"><i class="fas fa-lock"></i> Encrypt</button>
                 </form>
-                <div id="encryptResult" class="mt-6 hidden">
+                <div id="encryptResult" class="hidden">
                     <label for="encryptedOutput" class="form-label">Encryption Result</label>
                     <textarea id="encryptedOutput" class="form-input" rows="4" readonly></textarea>
-                    <button id="btnDownloadTxt" class="btn-action mt-3"><i class="fas fa-download"></i> Download TXT</button>
+                    <button id="btnDownloadTxt" class="btn-action"><i class="fas fa-download"></i> Download TXT</button>
                 </div>
             </div>
         </div>
@@ -641,7 +616,8 @@
             const passwordError = document.getElementById('passwordError');
             const mainContent = document.getElementById('mainContent');
 
-            btnSubmitPassword.addEventListener('click', () => {
+            // Validasi otomatis saat file dipilih tanpa perlu menekan tombol Enter
+            passwordFile.addEventListener('change', () => {
                 if (passwordFile.files.length === 0) {
                     passwordError.textContent = "Please choose a file.";
                     passwordError.classList.remove('hidden');
@@ -658,10 +634,41 @@
 
                 const reader = new FileReader();
                 reader.onload = function (event) {
-                    // Ubah file menjadi teks (meskipun format .bat, kita baca sebagai teks)
                     const fileContent = event.target.result.trim();
                     if (fileContent === correctPassword) {
-                        // Jika password benar, sembunyikan modal dan tampilkan konten utama
+                        passwordModal.style.display = 'none';
+                        mainContent.style.display = 'block';
+                    } else {
+                        passwordError.textContent = "Incorrect password. Please try again.";
+                        passwordError.classList.remove('hidden');
+                    }
+                };
+                reader.onerror = function () {
+                    passwordError.textContent = "Error reading file.";
+                    passwordError.classList.remove('hidden');
+                };
+                reader.readAsText(file);
+            });
+
+            // Fungsi tombol Enter sebagai cadangan
+            btnSubmitPassword.addEventListener('click', () => {
+                if (passwordFile.files.length === 0) {
+                    passwordError.textContent = "Please choose a file.";
+                    passwordError.classList.remove('hidden');
+                    return;
+                }
+
+                const file = passwordFile.files[0];
+                if (!file.name.endsWith('.bat')) {
+                    passwordError.textContent = "File must be in .bat format.";
+                    passwordError.classList.remove('hidden');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const fileContent = event.target.result.trim();
+                    if (fileContent === correctPassword) {
                         passwordModal.style.display = 'none';
                         mainContent.style.display = 'block';
                     } else {
@@ -704,10 +711,8 @@
             // Notifikasi
             function showNotification(message, isError = false) {
                 notification.textContent = message;
-                notification.style.borderColor = isError ? '#FF4500' : '#39FF14';
+                notification.style.borderColor = isError ? '#800000' : '#333';
                 notification.classList.remove('hidden');
-                notification.classList.toggle('text-red-400', isError);
-                notification.classList.toggle('text-green-400', !isError);
                 setTimeout(() => {
                     notification.classList.add('hidden');
                 }, 4000);
@@ -733,17 +738,14 @@
                 if (searchQuery.trim() !== '') {
                     query = query.or(`person_name.ilike.%${searchQuery}%,name.ilike.%${searchQuery}%`);
                 }
-                const {
-                    data,
-                    error
-                } = await query;
+                const { data, error } = await query;
                 if (error) {
                     console.error(error);
                     showNotification('Error loading links.', true);
                     return;
                 }
                 if (!data || data.length === 0) {
-                    linksContainer.innerHTML = '<p class="text-center text-gray-400 py-4">No links found.</p>';
+                    linksContainer.innerHTML = '<p class="text-center" style="color:#666;">No links found.</p>';
                     return;
                 }
                 data.forEach(link => {
@@ -760,7 +762,7 @@
                         <p class="link-details">
                             <strong>Shift Code:</strong> ${link.shift_code || '-'}
                         </p>
-                        <div class="flex flex-wrap gap-2 mt-2">
+                        <div>
                             <button class="btn-decrypt" data-url="${link.url}" data-shift="${link.shift_code || 0}">
                                 <i class="fas fa-lock-open"></i> Decrypt
                             </button>
@@ -786,12 +788,11 @@
                     button.addEventListener('click', async () => {
                         const url = button.getAttribute('data-url');
                         const shift = parseInt(button.getAttribute('data-shift')) || 0;
-                        const decryptedContainer = button.parentElement.parentElement.querySelector(
-                            '.decrypted-container');
+                        const decryptedContainer = button.parentElement.parentElement.querySelector('.decrypted-container');
 
                         decryptedContainer.innerHTML = `
-                            <div class="loading-container" style="display: flex; flex-direction: column; align-items: flex-start;">
-                                <p style="margin: 0; color: #39FF14; font-weight: bold; font-size: 0.8rem;">decrypting</p>
+                            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                                <p style="margin: 0; font-size: 0.8rem;">decrypting</p>
                                 <div class="progress-bar">
                                     <div class="progress-bar-fill"></div>
                                 </div>
@@ -813,10 +814,13 @@
                             const img = document.createElement('img');
                             img.src = textContent;
                             img.alt = 'Decrypted Image';
-                            img.className = 'max-w-full h-auto mt-3 rounded-md border border-gray-700 shadow-md';
+                            img.style.maxWidth = '100%';
+                            img.style.marginTop = '1rem';
+                            img.style.borderRadius = '4px';
+                            img.style.border = '1px solid #666';
 
                             const downloadBtn = document.createElement('button');
-                            downloadBtn.className = 'btn-download mt-3';
+                            downloadBtn.className = 'btn-download';
                             downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download Image';
                             downloadBtn.addEventListener('click', () => {
                                 const a = document.createElement('a');
@@ -841,7 +845,7 @@
                                     sizeText = `${(parseInt(contentLength) / 1024).toFixed(2)} KB`;
                                 }
                                 infoDiv.innerHTML =
-                                    `<p style="font-size: 0.7rem; color: #39FF14;">File Size: ${sizeText} | Dimensions: ${width} x ${height}</p>`;
+                                    `<p style="font-size: 0.7rem; color: #333;">File Size: ${sizeText} | Dimensions: ${width} x ${height}</p>`;
                                 decryptedContainer.appendChild(infoDiv);
                             });
                         } catch (error) {
@@ -856,9 +860,7 @@
                     button.addEventListener('click', async () => {
                         const id = button.getAttribute('data-id');
                         if (!confirm('Are you sure you want to delete this link?')) return;
-                        const {
-                            error
-                        } = await supabaseClient
+                        const { error } = await supabaseClient
                             .from('links')
                             .delete()
                             .eq('id', id);
@@ -901,17 +903,9 @@
                     showNotification('Person Name, Link Name, and URL are required.', true);
                     return;
                 }
-                const {
-                    data,
-                    error
-                } = await supabaseClient
+                const { data, error } = await supabaseClient
                     .from('links')
-                    .insert([{
-                        person_name: personName,
-                        name: linkName,
-                        url: linkUrl,
-                        shift_code: shiftCode
-                    }]);
+                    .insert([{ person_name: personName, name: linkName, url: linkUrl, shift_code: shiftCode }]);
                 if (error) {
                     console.error(error);
                     showNotification('Error saving link.', true);
@@ -988,20 +982,14 @@
                     showNotification('No encryption result to download.', true);
                     return;
                 }
-                // Membuat blob dengan tipe text/plain
-                const blob = new Blob([encryptedText], {
-                    type: 'text/plain'
-                });
-                // Membuat URL sementara
+                const blob = new Blob([encryptedText], { type: 'text/plain' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                // Nama file dengan ekstensi .ais
                 a.download = 'encrypted.ais';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                // Revoke object URL setelah download
                 URL.revokeObjectURL(url);
             });
 
