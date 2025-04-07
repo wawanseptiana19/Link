@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enkripsi & Dekripsi Gambar Canggih</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <style>
+    /* Styling Modern */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #f0f2f5, #e0e0e0);
+      color: #333;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.98);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+      text-align: center;
+      font-weight: 600;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+    h3 {
+      margin-top: 25px;
+      margin-bottom: 15px;
+      color: #34495e;
+      font-weight: 600;
+    }
+    input[type="file"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #bdc3c7;
+      border-radius: 6px;
+      font-size: 1em;
+      transition: border-color 0.3s ease;
+      background-color: #f9f9f9;
+      color: #2c3e50;
+    }
+    input[type="file"]:focus,
+    input[type="password"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    }
+    button {
+      background: #3498db;
+      color: #fff;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 6px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-right: 15px;
+      margin-top: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      font-weight: 600;
+    }
+    button:hover {
+      background: #217dbb;
+      transform: translateY(-2px);
+      box-shadow: 0 3px 7px rgba(0, 0, 0, 0.15);
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .section {
+      margin-bottom: 40px;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .drop-area {
+      border: 2px dashed #3498db;
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      color: #555;
+      transition: background-color 0.3s ease;
+    }
+    .drop-area.hover {
+      background-color: #ecf0f1;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+      padding: 8px;
+      background: #f8f8f8;
+      border: 1px solid #d3d3d3;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    textarea {
+      resize: none;
+      font-family: monospace;
+      font-size: 0.9em;
+      background-color: #f8f8f8;
+      color: #2c3e50;
+      border: 1px solid #d3d3d3;
+      border-radius: 6px;
+      padding: 10px;
+      width: 100%;
+      min-height: 100px;
+      transition: all 0.3s ease;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    }
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+    .status.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .status.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    @media (max-width: 600px) {
+      button {
+        width: 100%;
+        margin-bottom: 15px;
+        margin-right: 0;
+      }
+      .container {
+        padding: 20px;
+      }
+      h2 {
+        font-size: 1.8em;
+      }
+      h3 {
+        font-size: 1.2em;
+      }
+    }
+    /* Styling indikator loading */
+    #loadingIndicator {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      z-index: 10;
+      justify-content: center;
+      align-items: center;
+    }
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Indikator Loading -->
+    <div id="loadingIndicator">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Enkripsi Section -->
+    <div class="section">
+      <h2>Enkripsi Gambar</h2>
+      <div class="drop-area" id="dropAreaEncrypt">
+        <p>Seret dan jatuhkan gambar di sini atau klik untuk memilih gambar.</p>
+        <input type="file" id="imageInput" accept="image/*" style="display:none;">
+        <img id="previewImage" alt="Preview Gambar" style="display:none; margin-top:15px; max-height:200px;">
+      </div>
+      <input type="password" id="encryptPassword" placeholder="Masukkan password">
+      <div>
+        <button onclick="encryptImage()">Enkripsi</button>
+        <button onclick="downloadEncrypted()">Download .txt</button>
+        <button onclick="copyEncryptedText()">Copy Teks</button>
+      </div>
+      <div id="encryptStatus" class="status" style="display:none;"></div>
+      <h3>Hasil Enkripsi (Base64 terenkripsi):</h3>
+      <textarea id="encryptedOutput" rows="8" readonly></textarea>
+    </div>
+
+    <!-- Dekripsi Section -->
+    <div class="section">
+      <h2>Dekripsi Gambar</h2>
+      <input type="file" id="encryptedFileInput" accept=".txt">
+      <input type="password" id="decryptPassword" placeholder="Masukkan password">
+      <button onclick="decryptFromFile()">Dekripsi</button>
+      <div id="decryptStatus" class="status" style="display:none;"></div>
+      <h3>Hasil Gambar:</h3>
+      <img id="decryptedImage" alt="Gambar yang didekripsi" />
+      <div style="margin-top:15px;">
+        <button onclick="downloadDecryptedImage()">Download Gambar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let lastEncryptedText = '';
+
+    // Fungsi untuk menampilkan status pesan
+    function setStatus(elementId, message, type = 'success') {
+      const statusElement = document.getElementById(elementId);
+      statusElement.textContent = message;
+      statusElement.className = 'status ' + type;
+      statusElement.style.display = 'block';
+      setTimeout(() => statusElement.style.display = 'none', 4000);
+    }
+
+    function showLoading() {
+      document.getElementById('loadingIndicator').style.display = 'flex';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingIndicator').style.display = 'none';
+    }
+
+    // Fitur Drag-and-Drop untuk enkripsi
+    const dropAreaEncrypt = document.getElementById('dropAreaEncrypt');
+    const imageInput = document.getElementById('imageInput');
+    const previewImage = document.getElementById('previewImage');
+
+    dropAreaEncrypt.addEventListener('click', () => imageInput.click());
+    dropAreaEncrypt.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropAreaEncrypt.classList.add('hover');
+    });
+    dropAreaEncrypt.addEventListener('dragleave', () => {
+      dropAreaEncrypt.classList.remove('hover');
+    });
+    dropAreaEncrypt.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropAreaEncrypt.classList.remove('hover');
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        imageInput.files = e.dataTransfer.files;
+        showPreview();
+      }
+    });
+
+    imageInput.addEventListener('change', showPreview);
+
+    function showPreview() {
+      const file = imageInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        previewImage.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function encryptImage() {
+      const file = imageInput.files[0];
+      const password = document.getElementById('encryptPassword').value;
+      const output = document.getElementById('encryptedOutput');
+
+      if (!file || !password) {
+        alert("Pilih gambar dan masukkan password.");
+        return;
+      }
+
+      showLoading();
+
+      try {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          // Mengambil base64 dari gambar tanpa prefix data URL
+          const base64Image = e.target.result.split(',')[1];
+          const encrypted = CryptoJS.AES.encrypt(base64Image, password).toString();
+          output.value = encrypted;
+          lastEncryptedText = encrypted;
+          setStatus('encryptStatus', 'Enkripsi berhasil!', 'success');
+          hideLoading();
+        };
+        reader.readAsDataURL(file);
+      } catch (error) {
+        setStatus('encryptStatus', 'Error saat enkripsi: ' + error.message, 'error');
+        hideLoading();
+      }
+    }
+
+    function downloadEncrypted() {
+      if (!lastEncryptedText) {
+        alert("Tidak ada data terenkripsi untuk diunduh.");
+        return;
+      }
+      const blob = new Blob([lastEncryptedText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'encrypted_image.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyEncryptedText() {
+      const encryptedText = document.getElementById('encryptedOutput').value;
+      if (!encryptedText) {
+        alert("Tidak ada teks terenkripsi untuk disalin.");
+        return;
+      }
+      navigator.clipboard.writeText(encryptedText).then(() => {
+        setStatus('encryptStatus', 'Teks terenkripsi telah disalin ke clipboard!', 'success');
+      }).catch(err => {
+        setStatus('encryptStatus', 'Gagal menyalin teks: ' + err, 'error');
+      });
+    }
+
+    function decryptFromFile() {
+      const fileInput = document.getElementById('encryptedFileInput');
+      const password = document.getElementById('decryptPassword').value;
+      const imageElement = document.getElementById('decryptedImage');
+
+      if (!fileInput.files[0] || !password) {
+        alert("Pilih file terenkripsi dan masukkan password.");
+        return;
+      }
+
+      showLoading();
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const encryptedData = e.target.result;
+          const bytes = CryptoJS.AES.decrypt(encryptedData, password);
+          const decryptedBase64 = bytes.toString(CryptoJS.enc.Utf8);
+
+          if (!decryptedBase64) throw new Error("Dekripsi gagal.");
+          imageElement.src = 'data:image/*;base64,' + decryptedBase64;
+          setStatus('decryptStatus', 'Dekripsi berhasil!', 'success');
+        } catch (error) {
+          setStatus('decryptStatus', 'Dekripsi gagal. Pastikan password benar dan file valid.', 'error');
+          imageElement.src = '';
+        }
+        hideLoading();
+      };
+      reader.readAsText(fileInput.files[0]);
+    }
+
+    function downloadDecryptedImage() {
+      const imageElement = document.getElementById('decryptedImage');
+      const imageSrc = imageElement.src;
+      
+      if (!imageSrc) {
+        alert("Tidak ada gambar yang didekripsi untuk diunduh.");
+        return;
+      }
+      
+      const a = document.createElement('a');
+      a.href = imageSrc;
+      a.download = 'decrypted_image.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>
